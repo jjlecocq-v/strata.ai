@@ -39,6 +39,8 @@ for (const [needle, label] of [
 assertContains(appData, "id: row.id", "audit_log identifier preservation");
 assertContains(adapter, "`audit_log:${event.id}`", "audit_log source reference");
 assertContains(adapter, "`card:${event.cardId}`", "card source fallback reference");
+assertContains(adapter, "data.committee?.name", "committee identity adapter binding");
+assertNotContains(adapter, "Strata Governance Command", "generic live building name");
 assertContains(appStore, "const nextData = await (onDataRefresh ?? noOpRefresh)()", "authoritative refresh result");
 assertContains(appStore, "setCards(refreshed.cards)", "authoritative card refresh rebase");
 assertContains(appStore, "refreshed.cards.some((card) => card.id === currentId)", "stale selected-card cleanup");

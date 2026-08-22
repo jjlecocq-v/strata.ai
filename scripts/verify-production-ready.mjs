@@ -106,7 +106,8 @@ assert(supabaseServer.includes("createServerClient"), "Server client must use SS
 assert(supabaseClient.includes("createBrowserClient"), "Browser client must use Supabase SSR browser client");
 assert(supabaseAdmin.startsWith('import "server-only";'), "Admin client must be guarded by server-only");
 assert(aiRoute.includes("hasGatewayCredentials"), "AI route must expose live/fallback gateway mode selection");
-assert(runtimeConfiguration.includes("AI_FALLBACK_FORBIDDEN"), "AI route must reject fallback responses in Production");
+assert(runtimeConfiguration.includes("STRATA_AI_RELEASE_MODE"), "AI route must resolve an explicit live or fallback release mode");
+assert(!runtimeConfiguration.includes("AI_FALLBACK_FORBIDDEN"), "Verified fallback must remain valid in Production");
 assert(storageMigration.includes(bucket), "Storage bucket migration must configure the document bucket");
 assert(storageMigration.includes("public = excluded.public"), "Storage bucket must be private and idempotently configured");
 assert(readme.includes("Production Readiness Checklist"), "README must include the production readiness checklist");

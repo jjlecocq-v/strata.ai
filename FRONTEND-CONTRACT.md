@@ -57,6 +57,12 @@ type StrataAppData = {
       access_level: string
     } | null
   }
+  committee: {
+    id: string
+    name: string
+    address: string | null
+    strataPlan: string | null
+  } | null
   cards: GovernanceCard[]
   documents: DocumentRecord[]
   projects: Project[]
@@ -78,7 +84,7 @@ The current view adapter maps the backend data into `BuildingPlatformData` and a
 
 ## HTTP endpoint contract
 
-Unless noted, successful live mutations return JSON with `mode: "supabase"`. Missing/invalid runtime configuration returns a typed 503. Explicit fixture mode disables writes with `FIXTURE_WRITE_DISABLED`; no write route returns fabricated identifiers or mock success. `STRATA_AI_RELEASE_MODE` must be explicit, mock AI is forbidden in Production, and callers cannot override the server mode. Unknown dynamic actions/tasks return 404. Validation/data failures return `{ error: string, code: string }` and an appropriate 4xx/5xx status without raw upstream text.
+Unless noted, successful live mutations return JSON with `mode: "supabase"`. Missing/invalid runtime configuration returns a typed 503. Explicit fixture mode disables writes with `FIXTURE_WRITE_DISABLED`; no write route returns fabricated identifiers or mock success. `STRATA_AI_RELEASE_MODE` must be explicit (`live` or `fallback`). Verified fallback is a valid Production mode and must use only the active member’s RLS-scoped context, never app fixtures. Live Gateway remains opt-in and fail-closed; live provider failure never substitutes a mock answer. Callers cannot override the server mode. Unknown dynamic actions/tasks return 404. Validation/data failures return `{ error: string, code: string }` and an appropriate 4xx/5xx status without raw upstream text.
 
 The dynamic endpoint families are `POST /api/workflow/{action}`, `POST /api/finance/{action}`, and `POST /api/ai/{task}`; the table below freezes every supported value.
 
@@ -88,7 +94,8 @@ The dynamic endpoint families are `POST /api/workflow/{action}`, `POST /api/fina
 | `POST /api/members/accept` | Authenticated user with email | Empty JSON accepted | Active member DTO and message; activates only a matching invited email/user |
 | `POST /api/members/invite` | Active `admin`/`chair`/`secretary` | `email`, `fullName`, optional `role`, `accessLevel` | Member DTO, `inviteEmailSent`, message; rejects active/suspended existing rows |
 | `POST /api/members/update` | Active `admin`/`chair`/`secretary` | `memberId`, `fullName`, `role`, `status`, `accessLevel` | Updated member DTO and success message; lifecycle/self-lockout guards apply |
-| `POST /api/documents/create` | Active member | Multipart or JSON: `title`, `documentType`, optional `visibility`, `sourceDate`, `cardId`, `projectId`, `file`, `fileName`, `fileType`, `extractedText` | Document ID and extraction/Markdown status message; storage bucket is `strata-documents` |
+| `POST /api/documents/create` | Active member | Multipart or JSON: `title`, `documentType`, optional `visibility`, `sourceDate`, `cardId`, `projectId`, `motionId`, `file`, `fileName`, `fileType`, `extractedText` | Document ID and extraction/Markdown status message; storage bucket is `strata-documents`; optional `motionId` links the file to a draft/open motion |
+| `POST /api/documents/open` | Active member | JSON: `documentId`, optional `expiresIn` (1–120 seconds) | Time-limited signed URL for an RLS-visible document; hidden/cross-tenant IDs return 404; `Cache-Control: no-store` |
 | `POST /api/workflow/create-card` | Active member | `title`, `description`, optional `type`, `visibility` | Created/audited card ID |
 | `POST /api/workflow/add-message` | Active member | `cardId`, `body` | Created/audited message ID |
 | `POST /api/workflow/create-proposal` | Active member | `cardId`, `title`, optional `rationale` | Created/audited proposal ID |

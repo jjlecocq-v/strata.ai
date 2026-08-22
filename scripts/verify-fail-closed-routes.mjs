@@ -60,6 +60,7 @@ const routes = [
 ];
 
 const appDataHandler = (await import("../src/app/api/app-data/route.ts")).GET;
+const documentOpenHandler = (await import("../src/app/api/documents/open/route.ts")).POST;
 const aiHandler = (await import("../src/app/api/ai/[task]/route.ts")).POST;
 
 function setRuntimeEnvironment(values) {
@@ -97,6 +98,16 @@ for (const route of routes) {
 
 await expectFailure(
   await appDataHandler(new Request("http://strata.test/api/app-data")),
+  "RUNTIME_ENVIRONMENT_MISSING",
+);
+await expectFailure(
+  await documentOpenHandler(
+    new Request("http://strata.test/api/documents/open", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ documentId: "00000000-0000-4000-8000-000000000000" }),
+    }),
+  ),
   "RUNTIME_ENVIRONMENT_MISSING",
 );
 
@@ -147,4 +158,51 @@ await expectFailure(
   "AI_RELEASE_MODE_INVALID",
 );
 
-console.log("Behavioural fail-closed route assertions passed (6 writes, app-data, and AI boundaries).");
+setRuntimeEnvironment({
+  VERCEL_ENV: "production",
+  STRATA_ENVIRONMENT: "production",
+  STRATA_DATA_MODE: "live",
+  STRATA_AI_RELEASE_MODE: "fallback",
+  NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-test-key",
+});
+
+const productionFallback = await aiHandler(
+  new Request("http://strata.test/api/ai/card-brief", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question: "What is the live fire door approval?" }),
+  }),
+  { params: Promise.resolve({ task: "card-brief" }) },
+);
+const productionFallbackBody = await productionFallback.json();
+assert.ok(productionFallback.status >= 400, "Production fallback without an active member must be non-2xx");
+assert.notEqual(productionFallbackBody.code, "AI_FALLBACK_FORBIDDEN");
+assert.notEqual(productionFallbackBody.mode, "mock");
+assert.notEqual(productionFallbackBody.mode, "fallback");
+assert.equal("id" in productionFallbackBody, false);
+assert.equal(JSON.stringify(productionFallbackBody).includes("Live fire door approval"), false);
+
+setRuntimeEnvironment({
+  VERCEL_ENV: "production",
+  STRATA_ENVIRONMENT: "production",
+  STRATA_DATA_MODE: "live",
+  STRATA_AI_RELEASE_MODE: "live",
+  NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-test-key",
+});
+
+const productionLive = await aiHandler(
+  new Request("http://strata.test/api/ai/card-brief", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question: "What is the live fire door approval?" }),
+  }),
+  { params: Promise.resolve({ task: "card-brief" }) },
+);
+const productionLiveBody = await productionLive.json();
+assert.ok(productionLive.status >= 400, "Production live AI without a session or gateway must be non-2xx");
+assert.notEqual(productionLiveBody.mode, "mock");
+assert.equal(JSON.stringify(productionLiveBody).includes("Live fire door approval"), false);
+
+console.log("Behavioural fail-closed route assertions passed (6 writes, app-data, document open, and AI boundaries).");

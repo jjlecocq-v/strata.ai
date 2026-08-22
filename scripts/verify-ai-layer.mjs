@@ -121,7 +121,9 @@ assertContains(routeSource, "requestedRecordIsVisible", "hidden requested record
 assertContains(routeSource, "buildVisibleAiContext", "RLS context builder usage");
 assertContains(routeSource, "hasGatewayCredentials", "deterministic fallback guard");
 assertContains(runtimeSource, "AI_RELEASE_MODE_INVALID", "missing/invalid AI mode denial");
-assertContains(runtimeSource, "AI_FALLBACK_FORBIDDEN", "Production AI fallback denial");
+assertNotContains(runtimeSource, "AI_FALLBACK_FORBIDDEN", "Production verified fallback rejection");
+assertContains(routeSource, "Bounded non-binding fallback", "visible bounded fallback label");
+assertContains(routeSource, "binding: false", "non-binding fallback flag");
 assertContains(routeSource, "shouldUseFallback(releaseAiMode)", "release-mode fallback router");
 assertContains(envExampleSource, "STRATA_AI_RELEASE_MODE=fallback", "documented fallback release mode");
 assertNotContains(routeSource, "SUPABASE_SERVICE_ROLE_KEY", "service-role usage in AI route");

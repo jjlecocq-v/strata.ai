@@ -46,7 +46,7 @@ export function SidebarNav({
   onSignOut?: () => void
   isSigningOut?: boolean
 }) {
-  const { buildingName, currentUser, page, setPage } = useAppStore()
+  const { buildingName, buildingAddress, currentUser, page, setPage } = useAppStore()
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
@@ -59,7 +59,7 @@ export function SidebarNav({
             {buildingName}
           </p>
           <p className="truncate text-xs text-muted-foreground">
-            Building management
+            {buildingAddress}
           </p>
         </div>
       </div>

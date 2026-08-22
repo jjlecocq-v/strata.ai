@@ -115,6 +115,16 @@ async function setup() {
   }
 
   const committeeAId = adminMember.committee_id;
+  const { data: committeeA, error: committeeAError } = await service
+    .from("committees")
+    .select("name,address")
+    .eq("id", committeeAId)
+    .maybeSingle();
+
+  if (committeeAError || !committeeA?.name) {
+    throw new Error(committeeAError?.message ?? "Seeded Committee A identity was not found.");
+  }
+
   const crossCommitteeName = `${marker} Committee B`;
   const committeeBId = crypto.randomUUID();
 
@@ -232,6 +242,8 @@ async function setup() {
   const personaState: PersonaState = {
     marker,
     committeeAId,
+    committeeAName: committeeA.name,
+    committeeAAddress: committeeA.address ?? null,
     committeeBId,
     crossCommitteeName,
     personas: personaEntries,

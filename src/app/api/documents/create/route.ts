@@ -123,6 +123,32 @@ export async function POST(request: NextRequest) {
     const sourceDate = optionalText(formValue(payload, "sourceDate"));
     const linkedCardId = optionalText(formValue(payload, "cardId"));
     const linkedProjectId = optionalText(formValue(payload, "projectId"));
+    const linkedMotionId = optionalText(formValue(payload, "motionId"));
+
+    if (linkedMotionId) {
+      const { data: motion, error: motionError } = await supabase
+        .from("motions")
+        .select("id,status")
+        .eq("id", linkedMotionId)
+        .eq("committee_id", member.committee_id)
+        .maybeSingle();
+
+      if (motionError) {
+        throw motionError;
+      }
+
+      if (!motion) {
+        throw new PublicRequestError("MOTION_NOT_FOUND", "Motion was not found in your committee", 404);
+      }
+
+      if (motion.status === "decided" || motion.status === "withdrawn") {
+        throw new PublicRequestError(
+          "MOTION_NOT_EDITABLE",
+          "Documents cannot be attached to a terminal motion",
+          409,
+        );
+      }
+    }
     const fileEntry = payload instanceof FormData ? payload.get("file") : null;
     const file = fileEntry instanceof File ? fileEntry : null;
     const fallbackFileName = optionalText(formValue(payload, "fileName")) ?? `${title}.txt`;
@@ -167,6 +193,7 @@ export async function POST(request: NextRequest) {
       mime_type: fileType,
       linked_card_id: linkedCardId,
       linked_project_id: linkedProjectId,
+      linked_motion_id: linkedMotionId,
       markdown_placeholder: !extractedText,
     };
 
@@ -202,6 +229,7 @@ export async function POST(request: NextRequest) {
     const { error: attachmentError } = await supabase.from("attachments").insert({
       committee_id: member.committee_id,
       card_id: linkedCardId,
+      motion_id: linkedMotionId,
       document_id: id,
       uploader_member_id: member.id,
       file_name: fileName,

@@ -230,6 +230,14 @@ export interface ApprovalSummary {
   responses: ApprovalResponse[];
 }
 
+export interface MotionDocument {
+  id: string;
+  documentId: string;
+  name: string;
+  fileName: string;
+  fileType?: string;
+}
+
 export interface Motion {
   id: string;
   title: string;
@@ -245,6 +253,7 @@ export interface Motion {
   outcome?: MotionOutcome;
   outcomeValue?: MotionOutcomeDb;
   approval?: ApprovalSummary;
+  documents: MotionDocument[];
   audit: AuditEvent[];
 }
 
@@ -564,6 +573,7 @@ export const motions: Motion[] = [
     creator: "Ric Spooner",
     created: "24 Jun 2026 09:00",
     updated: "24 Jun 2026 09:00",
+    documents: [],
     audit: [],
   },
   {
@@ -589,6 +599,7 @@ export const motions: Motion[] = [
         { member: "JJ Lecocq", response: "approve", time: "12 Jun 2026 10:05" },
       ],
     },
+    documents: [],
     audit: [],
   },
 ];

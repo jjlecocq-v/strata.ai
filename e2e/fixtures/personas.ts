@@ -156,6 +156,8 @@ export interface PersonaStateEntry {
 export interface PersonaState {
   marker: string;
   committeeAId: string;
+  committeeAName: string;
+  committeeAAddress: string | null;
   committeeBId: string;
   crossCommitteeName: string;
   personas: Record<string, PersonaStateEntry>;

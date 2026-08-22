@@ -109,6 +109,70 @@ function DrawerBody({ motion, onClose }: { motion: Motion; onClose: () => void }
     }
   }
 
+  async function attachDocument(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setStatus({ state: "loading", message: "Attaching document..." })
+
+    try {
+      const form = event.currentTarget
+      const payload = new FormData(form)
+      const file = payload.get("file")
+      if (!(file instanceof File) || !file.name) {
+        throw new Error("Choose a document to attach")
+      }
+
+      payload.set("title", file.name)
+      payload.set("documentType", "Motion attachment")
+      payload.set("visibility", "all")
+      payload.set("motionId", motion.id)
+
+      const response = await fetch("/api/documents/create", {
+        method: "POST",
+        headers: await authHeaders({ contentType: "multipart" }),
+        body: payload,
+      })
+      const body = (await response.json()) as { message?: string; error?: string }
+
+      if (!response.ok) {
+        throw new Error(body.error ?? "Document could not be attached")
+      }
+
+      form.reset()
+      setStatus({ state: "success", message: body.message ?? "Document attached" })
+      await refreshData()
+    } catch (error) {
+      setStatus({
+        state: "error",
+        message: error instanceof Error ? error.message : "Document attach failed",
+      })
+    }
+  }
+
+  async function openDocument(documentId: string, name: string) {
+    setStatus({ state: "loading", message: `Opening ${name}...` })
+
+    try {
+      const response = await fetch("/api/documents/open", {
+        method: "POST",
+        headers: await authHeaders(),
+        body: JSON.stringify({ documentId }),
+      })
+      const body = (await response.json()) as { url?: string; error?: string }
+
+      if (!response.ok || !body.url) {
+        throw new Error(body.error ?? "Document could not be opened")
+      }
+
+      window.open(body.url, "_blank", "noopener,noreferrer")
+      setStatus({ state: "success", message: `Opened ${name}` })
+    } catch (error) {
+      setStatus({
+        state: "error",
+        message: error instanceof Error ? error.message : "Document open failed",
+      })
+    }
+  }
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-3 border-b border-border px-6 pb-5 pt-6">
@@ -250,6 +314,66 @@ function DrawerBody({ motion, onClose }: { motion: Motion; onClose: () => void }
           ) : null}
 
           <StatusMessage status={status} />
+        </section>
+
+        <Separator />
+
+        <section className="grid gap-3" aria-labelledby="motion-documents-heading">
+          <div>
+            <h3 id="motion-documents-heading" className="font-semibold">Motion documents</h3>
+            <p className="text-sm text-muted-foreground">
+              Attach a real file to this motion. Same-committee members can open the exact stored file.
+            </p>
+          </div>
+
+          {motion.documents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No documents attached to this motion.</p>
+          ) : (
+            <ul className="grid gap-2">
+              {motion.documents.map((document) => (
+                <li
+                  key={document.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm"
+                >
+                  <span className="min-w-0 truncate font-medium">{document.name}</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    aria-label={`Open ${document.name}`}
+                    disabled={pending}
+                    onClick={() => openDocument(document.documentId, document.name)}
+                  >
+                    Open
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {terminal ? (
+            <p className="text-xs text-muted-foreground">
+              Terminal motions cannot receive new documents.
+            </p>
+          ) : (
+            <form className="grid gap-2" onSubmit={attachDocument}>
+              <label className="text-sm font-medium" htmlFor={`motion-document-${motion.id}`}>
+                Attach document
+              </label>
+              <input
+                id={`motion-document-${motion.id}`}
+                name="file"
+                type="file"
+                aria-label="Motion document file"
+                accept=".txt,.md,.markdown,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                disabled={pending}
+                required
+                className="text-sm"
+              />
+              <Button type="submit" aria-label="Attach document to motion" disabled={pending}>
+                Attach document
+              </Button>
+            </form>
+          )}
         </section>
 
         <Separator />

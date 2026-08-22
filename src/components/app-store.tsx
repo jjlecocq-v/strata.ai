@@ -12,6 +12,7 @@ import type { Motion } from "@/lib/strata-data"
 interface AppStore {
   dataSource: StrataAppData["source"]
   buildingName: string
+  buildingAddress: string
   currentUser: BuildingPlatformData["currentUser"]
   cards: Card[]
   people: Person[]
@@ -51,6 +52,7 @@ async function noOpRefresh() {
 
 const fallbackData: BuildingPlatformData = {
   buildingName: BUILDING_NAME,
+  buildingAddress: "",
   currentUser: {
     name: "Grace Miller",
     initials: "GM",
@@ -80,6 +82,8 @@ export function AppStoreProvider({
   )
   const [cards, setCards] = React.useState<Card[]>(platformData.cards)
   const [motions, setMotions] = React.useState<Motion[]>(platformData.motions)
+  const [buildingName, setBuildingName] = React.useState(platformData.buildingName)
+  const [buildingAddress, setBuildingAddress] = React.useState(platformData.buildingAddress)
   const [page, setPage] = React.useState<NavKey>("dashboard")
   const [selectedCardId, setSelectedCardId] = React.useState<string | null>(null)
   const [createOpen, setCreateOpen] = React.useState(false)
@@ -94,6 +98,8 @@ export function AppStoreProvider({
       const refreshed = mapStrataDataToBuildingPlatform(nextData)
       setCards(refreshed.cards)
       setMotions(refreshed.motions)
+      setBuildingName(refreshed.buildingName)
+      setBuildingAddress(refreshed.buildingAddress)
       setSelectedCardId((currentId) =>
         currentId && refreshed.cards.some((card) => card.id === currentId) ? currentId : null,
       )
@@ -113,7 +119,8 @@ export function AppStoreProvider({
   const value = React.useMemo<AppStore>(
     () => ({
       dataSource: initialData?.source ?? "fallback",
-      buildingName: platformData.buildingName,
+      buildingName,
+      buildingAddress,
       currentUser: platformData.currentUser,
       cards,
       motions,
@@ -155,6 +162,8 @@ export function AppStoreProvider({
       refreshStatus,
       cards,
       motions,
+      buildingName,
+      buildingAddress,
       page,
       selectedCardId,
       openCard,
