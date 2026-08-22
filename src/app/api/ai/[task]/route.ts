@@ -135,15 +135,22 @@ function lawRefusal(contextBundle: AiContextBundle) {
   };
 }
 
+const fallbackReleaseLabel =
+  "Bounded non-binding fallback. This is not a live model answer and must not be treated as committee advice.";
+
 function fallback(task: AiTask, contextBundle: AiContextBundle, body: Record<string, unknown>) {
   const base = {
     mode: "mock",
     task,
     model,
     persisted: false,
+    bounded: true,
+    binding: false,
+    releaseMode: "fallback" as const,
+    releaseLabel: fallbackReleaseLabel,
     context: contextBundle,
     citations: citationLabels(contextBundle.citations),
-    disclaimer,
+    disclaimer: `${disclaimer} ${fallbackReleaseLabel}`,
   };
 
   if (task === "budget-insights") {

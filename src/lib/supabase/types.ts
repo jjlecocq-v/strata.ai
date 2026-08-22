@@ -260,6 +260,7 @@ export interface Database {
           id: string;
           committee_id: string;
           card_id: string | null;
+          motion_id: string | null;
           document_id: string | null;
           uploader_member_id: string | null;
           file_name: string;
@@ -274,6 +275,7 @@ export interface Database {
           id?: string;
           committee_id: string;
           card_id?: string | null;
+          motion_id?: string | null;
           document_id?: string | null;
           uploader_member_id?: string | null;
           file_name: string;

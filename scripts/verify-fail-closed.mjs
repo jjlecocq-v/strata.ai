@@ -51,17 +51,22 @@ assert.throws(
   () => resolveAiReleaseMode({ STRATA_ENVIRONMENT: "local", STRATA_DATA_MODE: "fixture" }),
   (error) => error instanceof RuntimeBoundaryError && error.code === "AI_RELEASE_MODE_INVALID",
 );
-assert.throws(
-  () => resolveAiReleaseMode({
-    VERCEL_ENV: "production",
-    STRATA_ENVIRONMENT: "production",
-    STRATA_DATA_MODE: "live",
-    STRATA_AI_RELEASE_MODE: "fallback",
-    NEXT_PUBLIC_SUPABASE_URL: "https://production.supabase.co",
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-test-key",
-  }),
-  (error) => error instanceof RuntimeBoundaryError && error.code === "AI_FALLBACK_FORBIDDEN",
-);
+assert.equal(resolveAiReleaseMode({
+  VERCEL_ENV: "production",
+  STRATA_ENVIRONMENT: "production",
+  STRATA_DATA_MODE: "live",
+  STRATA_AI_RELEASE_MODE: "fallback",
+  NEXT_PUBLIC_SUPABASE_URL: "https://production.supabase.co",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-test-key",
+}), "fallback");
+assert.equal(resolveAiReleaseMode({
+  VERCEL_ENV: "production",
+  STRATA_ENVIRONMENT: "production",
+  STRATA_DATA_MODE: "live",
+  STRATA_AI_RELEASE_MODE: "live",
+  NEXT_PUBLIC_SUPABASE_URL: "https://production.supabase.co",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-test-key",
+}), "live");
 assert.equal(resolveAiReleaseMode({
   VERCEL_ENV: "preview",
   STRATA_ENVIRONMENT: "staging",
@@ -155,7 +160,7 @@ assert.deepEqual(await publicRequestResponse.json(), {
   code: "REQUEST_FIELD_REQUIRED",
 });
 
-console.log("Behavioural runtime-boundary assertions passed (22 cases).");
+console.log("Behavioural runtime-boundary assertions passed (23 cases).");
 
 function expectUnsafeMutation(args, code) {
   assert.throws(
@@ -460,6 +465,7 @@ const writeRoutes = [
   "src/app/api/workflow/[action]/route.ts",
   "src/app/api/finance/[action]/route.ts",
   "src/app/api/documents/create/route.ts",
+  "src/app/api/documents/open/route.ts",
   "src/app/api/members/accept/route.ts",
   "src/app/api/members/invite/route.ts",
   "src/app/api/members/update/route.ts",
@@ -508,4 +514,4 @@ const contract = read("FRONTEND-CONTRACT.md");
 assertContains(contract, "FIXTURE_WRITE_DISABLED", "frontend fail-closed write contract");
 assertContains(contract, "never substitutes fixture records", "frontend fail-closed read contract");
 
-console.log("Static fail-closed route-wiring contract checks passed (6 write routes + read/AI boundaries).");
+console.log("Static fail-closed route-wiring contract checks passed (7 write routes + read/AI boundaries).");

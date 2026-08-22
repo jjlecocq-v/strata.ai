@@ -75,9 +75,20 @@ for (const [needle, label] of [
   ['.from("documents")', "document persistence"],
   ['.from("attachments")', "attachment persistence"],
   ['storage.from(DOCUMENT_BUCKET).remove', "failed-write storage cleanup"],
+  ['formValue(payload, "motionId")', "motion attachment linkage"],
 ]) {
   assertContains(route, needle, label);
 }
+
+const openRoute = read("src/app/api/documents/open/route.ts");
+const drawer = read("src/components/motions/motion-detail-drawer.tsx");
+assertContains(openRoute, "createSignedUrl", "time-limited document open path");
+assertContains(openRoute, "Cache-Control", "document open no-store");
+assertContains(openRoute, "DOCUMENT_NOT_FOUND", "hidden/cross-tenant document open denial");
+assertContains(drawer, 'fetch("/api/documents/create"', "motion attach binding");
+assertContains(drawer, 'fetch("/api/documents/open"', "motion open binding");
+assertContains(drawer, 'aria-label="Attach document to motion"', "motion attach action name");
+assertContains(drawer, 'aria-label="Motion document file"', "motion attach file name");
 
 for (const [source, needle, label] of [
   [page, "toast.success", "demo upload toast"],

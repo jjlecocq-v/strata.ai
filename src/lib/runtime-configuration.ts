@@ -178,14 +178,7 @@ export function resolveAiReleaseMode(
     );
   }
 
-  const runtimeConfiguration = resolveRuntimeConfiguration(env);
-
-  if (releaseMode === "fallback" && runtimeConfiguration.environment === "production") {
-    throw new RuntimeBoundaryError(
-      "AI_FALLBACK_FORBIDDEN",
-      "Mock AI responses are forbidden in Production.",
-    );
-  }
+  resolveRuntimeConfiguration(env);
 
   return releaseMode;
 }

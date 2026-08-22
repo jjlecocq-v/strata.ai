@@ -53,7 +53,7 @@ Vercel AI Gateway:
 - Enable AI Gateway in the Vercel project
 - Run `vercel env pull .env.local`
 
-`STRATA_AI_RELEASE_MODE=fallback` explicitly enables the bounded mock AI adapter. When live AI is selected, missing Gateway credentials or provider failure returns a non-2xx error and never substitutes a mock answer.
+`STRATA_AI_RELEASE_MODE=fallback` explicitly enables the bounded, non-binding mock AI adapter. It is a valid Production mode when set explicitly and may use only the active member’s RLS-scoped context. When live AI is selected, missing Gateway credentials or provider failure returns a non-2xx error and never substitutes a mock answer.
 
 When live Supabase configuration is missing or unavailable, reads and writes return typed non-2xx failures. Synthetic data is served only through explicit fixture mode, and writable APIs never fabricate success or identifiers. When live configuration and an active authenticated member session are present, reads and writes use the publishable key and rely on RLS.
 
@@ -173,7 +173,7 @@ npm run dev
 
 Before production promotion:
 
-- Vercel env vars: set `STRATA_ENVIRONMENT=production`, `STRATA_DATA_MODE=live`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `STRATA_AI_RELEASE_MODE=live`. Production AI also requires Vercel-managed OIDC or a server-side `AI_GATEWAY_API_KEY`; missing credentials fail closed and Production mock/fallback mode is rejected.
+- Vercel env vars: set `STRATA_ENVIRONMENT=production`, `STRATA_DATA_MODE=live`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `STRATA_AI_RELEASE_MODE=fallback` (the locked v1 mode). Live Gateway is a later opt-in: `STRATA_AI_RELEASE_MODE=live` plus Vercel-managed OIDC or a server-side `AI_GATEWAY_API_KEY`. Missing live credentials fail closed and never substitute a mock answer. Fixture data mode remains forbidden in Production.
 - Server-only secrets: keep `SUPABASE_SECRET_KEY` in secure server/operator tooling only when an admin workflow requires it. Never expose it through a `NEXT_PUBLIC_*` variable or client code; invalid or publishable-shaped keys are rejected.
 - Supabase setup: after an explicit GO, apply every reviewed migration in order and confirm the private `strata-documents` bucket and migration ledger. Never run `npm run supabase:seed-live` or `npm run seed:law` against Production.
 - Access proof: run mutating integration and browser checks against the isolated staging project first. Set both staging/Production project refs and the explicit staging mutation opt-in; the target guard must identify staging and reject Production. Production promotion uses the resulting staging evidence plus non-mutating sentinel checks.

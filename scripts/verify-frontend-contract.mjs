@@ -32,6 +32,7 @@ const routeContracts = [
   ["POST /api/members/invite", "src/app/api/members/invite/route.ts", ["assertInviteCanBePrepared", "canManageMembers"]],
   ["POST /api/members/update", "src/app/api/members/update/route.ts", ["assertMemberLifecycleTransition", "canManageMembers"]],
   ["POST /api/documents/create", "src/app/api/documents/create/route.ts", ["strata-documents", "needs_extraction"]],
+  ["POST /api/documents/open", "src/app/api/documents/open/route.ts", ["createSignedUrl", "DOCUMENT_NOT_FOUND"]],
   ["POST /api/workflow/{action}", "src/app/api/workflow/[action]/route.ts", ["create-card", "add-message", "create-proposal", "cast-vote", "add-approval-condition"]],
   ["POST /api/finance/{action}", "src/app/api/finance/[action]/route.ts", ["create-vendor", "create-invoice", "create-quote-review"]],
   ["POST /api/ai/{task}", "src/app/api/ai/[task]/route.ts", ["card-brief", "thread-summary", "document-qa", "nsw-law-lookup", "budget-insights", "quote-risk", "project-status"]],
@@ -55,6 +56,7 @@ for (const field of [
   "members: Member[]",
   "activity: AuditEvent[]",
   "budgetLines: BudgetLine[]",
+  "committee: CommitteeIdentity | null",
 ]) {
   assertContains(appData, field, "StrataAppData field");
 }

@@ -43,6 +43,13 @@ import type {
 
 export type DataSource = "fallback" | "supabase";
 
+export interface CommitteeIdentity {
+  id: string;
+  name: string;
+  address: string | null;
+  strataPlan: string | null;
+}
+
 export interface StrataAppData {
   source: DataSource;
   sourceDetail: string;
@@ -50,6 +57,7 @@ export interface StrataAppData {
     mode: "fallback" | "signed-out" | "active";
     member: CurrentMember | null;
   };
+  committee: CommitteeIdentity | null;
   cards: GovernanceCard[];
   motions: Motion[];
   documents: DocumentRecord[];
@@ -133,6 +141,7 @@ type DocumentQueryRow = {
 type AttachmentQueryRow = {
   id: string;
   card_id: string | null;
+  motion_id: string | null;
   document_id: string | null;
   file_name: string;
   file_path: string;
@@ -286,6 +295,7 @@ export const fallbackAppData: StrataAppData = {
     mode: "fallback",
     member: null,
   },
+  committee: null,
   cards: fallbackCards,
   motions: fallbackMotions,
   documents: fallbackDocuments,
@@ -357,6 +367,8 @@ function mapMotion(
   activity: AuditEvent[],
   approvalRequests: ApprovalRequestQueryRow[],
   approvalResponses: ApprovalResponseQueryRow[],
+  documents: DocumentQueryRow[],
+  attachments: AttachmentQueryRow[],
 ): Motion {
   const request = approvalRequests.find((item) => item.motion_id === row.id);
   const requestResponses = request
@@ -397,6 +409,18 @@ function mapMotion(
     outcome,
     outcomeValue: row.outcome ?? undefined,
     approval,
+    documents: attachments
+      .filter((attachment) => attachment.motion_id === row.id && attachment.document_id)
+      .map((attachment) => {
+        const document = documents.find((item) => item.id === attachment.document_id);
+        return {
+          id: attachment.id,
+          documentId: attachment.document_id as string,
+          name: document?.title ?? attachment.file_name,
+          fileName: attachment.file_name,
+          fileType: attachment.file_type ?? undefined,
+        };
+      }),
     audit: activity.filter((event) => event.motionId === row.id),
   };
 }
@@ -514,6 +538,7 @@ function mapDocument(
   cards: CardQueryRow[],
   projects: ProjectQueryRow[],
   attachments: AttachmentQueryRow[],
+  motions: MotionQueryRow[] = [],
 ): DocumentRecord {
   const metadata = recordFromJson(row.metadata);
   const linkedCardId = stringFromRecord(metadata, "linked_card_id");
@@ -522,9 +547,13 @@ function mapDocument(
   const linkedCard = cards.find((card) => card.id === linkedCardId || card.id === linkedAttachment?.card_id);
   const linkedProject = projects.find((project) => project.id === linkedProjectId);
   const storageObjectPath = stringFromRecord(metadata, "storage_object_path") ?? linkedAttachment?.file_path;
+  const linkedMotion = motions.find((motion) =>
+    attachments.some((attachment) => attachment.document_id === row.id && attachment.motion_id === motion.id),
+  );
   const linkedTo = uniqueStrings([
     linkedCard ? `Card: ${linkedCard.title}` : null,
     linkedProject ? `Project: ${linkedProject.name}` : null,
+    linkedMotion ? `Motion: ${linkedMotion.title}` : null,
   ]);
   const citations = uniqueStrings([
     row.markdown_path,
@@ -820,6 +849,7 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
         mode: "signed-out",
         member: null,
       },
+      committee: null,
       cards: [],
       motions: [],
       documents: [],
@@ -834,6 +864,16 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
         disclaimer: "General information only. Not legal, financial, accounting, engineering, or strata management advice.",
       },
     };
+  }
+
+  const committeeResult = await supabase
+    .from("committees")
+    .select("id,name,address,strata_plan")
+    .eq("id", member.committee_id)
+    .maybeSingle();
+
+  if (committeeResult.error || !committeeResult.data) {
+    throw upstreamUnavailable("SUPABASE_COMMITTEE_QUERY_FAILED");
   }
 
   const [
@@ -878,7 +918,7 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
       .limit(20),
     supabase
       .from("audit_log")
-      .select("id,action,target,created_at,card_id,user_id,metadata")
+      .select("id,action,target,created_at,card_id,motion_id,user_id,metadata")
       .eq("committee_id", member.committee_id)
       .order("created_at", { ascending: false })
       .limit(40),
@@ -904,7 +944,7 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     supabase.from("variations").select("project_id,id,title,amount,status").eq("committee_id", member.committee_id).limit(80),
     supabase
       .from("attachments")
-      .select("id,card_id,document_id,file_name,file_path,file_type")
+      .select("id,card_id,motion_id,document_id,file_name,file_path,file_type")
       .eq("committee_id", member.committee_id)
       .limit(100),
     supabase.from("vendors").select("id,name,contact_email,phone,insurance_status").eq("committee_id", member.committee_id).limit(50),
@@ -993,6 +1033,8 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
           activity,
           supabaseApprovalRequests,
           supabaseApprovalResponses,
+          supabaseDocuments,
+          supabaseAttachments,
         ),
       )
     : [];
@@ -1037,10 +1079,16 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
       mode: "active",
       member,
     },
+    committee: {
+      id: committeeResult.data.id,
+      name: committeeResult.data.name,
+      address: committeeResult.data.address,
+      strataPlan: committeeResult.data.strata_plan,
+    },
     cards,
     motions,
     documents: supabaseDocuments.map((document) =>
-      mapDocument(document, supabaseCards, supabaseProjects, supabaseAttachments),
+      mapDocument(document, supabaseCards, supabaseProjects, supabaseAttachments, supabaseMotions),
     ),
     projects,
     vendors: mapVendors(supabaseVendors),

@@ -17,7 +17,7 @@ The alpha application treated missing Supabase configuration and upstream query 
 - Live mode requires a valid Supabase URL and publishable/legacy anon key. Missing or invalid configuration returns a typed non-2xx error.
 - Explicit fixture mode may serve local synthetic reads, but all write endpoints return `FIXTURE_WRITE_DISABLED`; they never return a fabricated identifier or success.
 - Supabase authentication/query failures return a typed unavailable/unauthenticated response and never substitute fixture data.
-- `STRATA_AI_RELEASE_MODE` must be exactly `live` or `fallback`. Fallback is forbidden in Production, cannot be selected by a request body, and live provider failure never substitutes a mock answer.
+- `STRATA_AI_RELEASE_MODE` must be exactly `live` or `fallback`. Explicit verified fallback is a valid Production mode and must use only the active member’s RLS-scoped context. It cannot be selected by a request body. Live Gateway remains opt-in; live provider failure never substitutes a mock answer. Fixture data mode remains forbidden in Production.
 - Upstream/database error text remains server-side. Public responses use stable error codes and deliberately public validation messages only.
 - Every direct database/service mutator must resolve a local/test loopback or an explicitly approved staging Supabase project before client creation or mutation. Browser mutators must additionally match an exact staging application origin distinct from Production.
 

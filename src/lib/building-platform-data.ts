@@ -22,6 +22,7 @@ import type {
 
 export interface BuildingPlatformData {
   buildingName: string;
+  buildingAddress: string;
   currentUser: {
     name: string;
     initials: string;
@@ -50,7 +51,8 @@ export function mapStrataDataToBuildingPlatform(data: StrataAppData): BuildingPl
     citations: document.citations,
   }));
   return {
-    buildingName: "Strata Governance Command",
+    buildingName: data.committee?.name ?? "",
+    buildingAddress: data.committee?.address ?? "",
     currentUser: data.auth.member
       ? {
           name: data.auth.member.full_name,
