@@ -4,23 +4,23 @@ Updated: 2026-08-23 Australia/Sydney
 
 Authoritative base: `jjlecocq-v/strata.ai` `codex/strata-v1-release-candidate` @ `21fedf7c49b13a0aeb10013ddce8bd9ca6181b07`
 
-Working branch: `cursor/wave-1a-source-0b32` from graph-audit tip `5bedb1c80ca8feffd52cd72a1113c67215491882`
+Working branch: `cursor/wave-1a-source-0b32` @ `9910167` (PR #13)
 
 State syntax: `id | pending|in-progress|blocked(on)|done | evidence`
 
 ## Nodes
 
 scope-router | done | decisions #4 replace; #5 verified fallback; #7 no meetings/intake; #8 defer Track E; B/D/E/meetings/#38 excluded from v1
-runner-router | done | factory/Foreman unavailable; route selected = this agent with identical contracts
+runner-router | done | this agent executing source contracts; product dependencies unchanged
 baseline-rc | done | RC tip still 21fedf7; no post-audit delta; CI run 32526860349; GRAPH-AUDIT-2026-08.md
-committee-identity | in-progress | maker: StrataAppData.committee + adapter uses RLS committee name/address; generic label removed from live adapter
-verify-committee-identity | blocked(committee-identity) | e2e/journeys/committee-identity.spec.ts written; not yet run as a distinct pass
-motion-audit-read | in-progress | maker: audit_log select now includes motion_id
-verify-motion-audit-read | blocked(motion-audit-read) | e2e/journeys/motion-audit.spec.ts written; not yet run as a distinct pass
-motion-attach-open | in-progress | maker: additive motion_id + RLS, /api/documents/create motionId, /api/documents/open signed URL, motion drawer attach/open
-verify-motion-attach-open | blocked(motion-attach-open) | e2e/journeys/motion-documents.spec.ts written; not yet run as a distinct pass
-production-fallback | in-progress | maker: Production accepts explicit fallback; fixture still forbidden; README/ADR/contract aligned; fallback labelled bounded/non-binding
-verify-production-fallback | blocked(production-fallback) | fail-closed + AI source tests updated; not yet run as a distinct pass
+committee-identity | done | maker SHA 96a636b; StrataAppData.committee + adapter/shell; signed-out null; generic live label removed
+verify-committee-identity | in-progress | distinct journey e2e/journeys/committee-identity.spec.ts; local Docker/Supabase unavailable; awaiting fork CI e2e
+motion-audit-read | done | maker SHA 96a636b; audit_log select includes motion_id; mapAudit/motion.audit unchanged
+verify-motion-audit-read | in-progress | distinct journey e2e/journeys/motion-audit.spec.ts; awaiting fork CI e2e
+motion-attach-open | done | maker SHA 96a636b; migration 20260823120001; create motionId; /api/documents/open; drawer attach/open
+verify-motion-attach-open | in-progress | distinct journey e2e/journeys/motion-documents.spec.ts; awaiting fork CI e2e
+production-fallback | done | maker SHA 96a636b; Production accepts explicit fallback; fixture still forbidden; README/ADR/contract aligned
+verify-production-fallback | done | distinct command pass: npm run verify:fail-closed (23 runtime + production-like AI negatives) and STRATA_VERIFY_STATIC_ONLY=1 npm run verify:ai; lint/typecheck/verify:frontend-contract passed
 live-capability-reconcile | blocked(operator-live-supabase-apply-unlock) | Jean-Julien: backup + reviewed apply of 202608160001 to osgvagsouxgbrnbljhxb; this run must not mutate live Supabase
 verify-live-capabilities | blocked(operator-live-supabase-apply-unlock) | independent catalog/persona proof after operator apply
 live-data-sanitize | blocked(operator-targeted-cleanup-unlock) | Jean-Julien: approve exact-ID manifest/backup; this run must not mutate live data
@@ -29,10 +29,10 @@ production-auth-config | blocked(operator-vercel-target-scope-and-production-hos
 verify-production-auth | blocked(operator-vercel-target-scope-and-production-hostname) | allowlist/settings read-back after operator input
 second-real-member | blocked(operator-member-identity-and-recipient-acceptance) | Jean-Julien: name/email/role of one real SP 6430 member + recipient availability
 verify-second-real-member | blocked(operator-member-identity-and-recipient-acceptance) | two distinct human sessions after named invite
-candidate-preview | blocked(source-verifiers) | Preview only after all four source verifier nodes pass and full fork CI is green
+candidate-preview | blocked(source-verifiers) | Preview only after remaining source e2e verifiers + full fork CI; Vercel MCP needsAuth
 secretary-preview-rehearsal | blocked(candidate-preview,live-verifiers,auth-verifier,member-verifier,secretary-session) | six-part exact-candidate evidence not yet captured
 production-unlock | blocked(operator-GO-after-rehearsal) | required token: GO <sha> <deployment-id> <hostname>
-production-release | blocked(operator-GO-after-rehearsal) | no dedicated Production URL or approved rollback target yet; this run must not vercel --prod
+production-release | blocked(operator-GO-after-rehearsal) | this run must not vercel --prod
 production-smoke | blocked(operator-GO-after-rehearsal) | non-destructive two-session Production proof required
 retire-tailadmin | blocked(operator-GO-after-rehearsal) | strata-ai.vercel.app still serves public TailAdmin demo as of 2026-08-23
 verify-public-surface | blocked(operator-GO-after-rehearsal) | verify new locked URL, old URL absent/redirected, no loop, recovery reachable
@@ -52,10 +52,10 @@ production-route | blocked(operator-GO-after-rehearsal) | no Production command 
 
 ## Delivery state for this audit
 
-artifact-branch | in-progress | working branch `cursor/wave-1a-source-0b32` from `5bedb1c`; PRs against `codex/strata-v1-release-candidate` only
-issue-sync | done | existing fork #1 retained; remainder issues #2–#11 already open; update, do not duplicate
-branch-push | pending | push `cursor/wave-1a-source-0b32` after maker commit
-pull-request | pending | WAVE 1A source PR against RC, not Lajij
+artifact-branch | in-progress | `cursor/wave-1a-source-0b32` from `5bedb1c`; product SHA 96a636b; state SHA 9910167
+issue-sync | done | #1–#4 updated with maker pointers; #5–#11 documented WAITING; no Lajij writes
+branch-push | done | origin/cursor/wave-1a-source-0b32
+pull-request | done | https://github.com/jjlecocq-v/strata.ai/pull/13 → codex/strata-v1-release-candidate
 
 ## Hard stops
 
