@@ -50,10 +50,10 @@ production-route | blocked(operator-GO-after-rehearsal) | no Production command 
 
 ## Delivery state for this audit
 
-artifact-branch | done | local isolated worktree `/private/tmp/strata-graph-audit`, branch `codex/graph-audit-2026-08`; five audit/graph files validated; no product-code paths changed
-issue-sync | blocked(github-plugin-connection) | GitHub plugin calls return Unknown tool; local gh credentials are invalid; fork issue #1 verified through public read only
-branch-push | blocked(github-write-auth) | no authenticated fork push path yet
-pull-request | blocked(branch-push-and-github-write-auth) | target must be jjlecocq-v/strata.ai:codex/strata-v1-release-candidate
+artifact-branch | done | isolated branch `codex/graph-audit-2026-08`; initial audit commit e97d337; five files validated; no product-code paths changed
+issue-sync | done | existing fork #1 retained; narrow remainder issues #2–#11 created on 2026-08-23
+branch-push | done | `codex/graph-audit-2026-08` pushed to `jjlecocq-v/strata.ai`
+pull-request | done | fork PR #12: https://github.com/jjlecocq-v/strata.ai/pull/12 → codex/strata-v1-release-candidate
 
 ## Hard stops
 
