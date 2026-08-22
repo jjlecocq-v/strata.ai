@@ -1,22 +1,35 @@
-# strata.ai v1 — decisions required
+# strata.ai decision record
 
-Operator/committee: answer each item with the requested **yes/no**, choice, or **named person**. Decisions #7 and #8 previously used temporary defaults; the operator's 2026-08-04 answers below now supersede those defaults. This document is a repository decision record and has not been sent externally.
+Revalidated: 2026-08-23 (Australia/Sydney)
 
-| # | Decision required | Answer |
-|---|---|---|
-| 1 | What Gmail accounts/labels and inclusive date range may Track B read? | **Scope:** pending; **start:** pending; **end:** pending |
-| 2 | May imported messages/attachments be retained in strata.ai, and what confidentiality classes, exclusions, access limits, and deletion period apply? | **Yes/no:** pending; **rules:** pending |
-| 3 | Who may approve/correct/hold/exclude imported records and approve Eve drafts? | **Named person/role:** **repository operator/owner (the user issuing this decision)** — answered 2026-08-02; operator retains sole approval until the policy is fine-tuned. |
-| 4 | Should the simplified frontend **replace** the current UI or be **refactored into** it? | **Choice:** **replace** — answered by the operator on 2026-08-01. The delivered cards/votes/updates/people vocabulary is canonical; Projects and Budget are new destinations in that design language. |
-| 5 | Should v1 launch with **live AI gateway** or **verified fallback mode**? | **Choice:** **verified fallback mode** — approved by the operator on 2026-08-04; live Gateway remains explicit opt-in after a separate verification/policy decision. |
-| 6 | May Preview use these Vercel variable names: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SECRET_KEY`, with legacy aliases retained temporarily? | **Yes:** approved by the operator on 2026-08-04; server credentials remain outside all `NEXT_PUBLIC_*` variables. |
-| 7 | Is reviewed intake/meeting-mode part of the v1 rehearsal definition? | **No:** approved by the operator on 2026-08-04; Track B and meeting-mode are excluded from v1. |
-| 8 | Is Track E part of the first-release definition of done? | **Exact choice:** **`defer-track-e-post-v1`** — approved by the operator on 2026-08-04. |
-| 9 | May unit-interior/exterior photos be stored, and what consent, visibility, retention, redaction, and deletion rules apply? | **Yes/no:** pending; **rules:** pending |
-| 10 | Who holds confirm-figure authority, and do you approve protected draft→official transitions, server-derived confirmer/time, unprivileged direct-write denial, and audit-log mirroring only? | **Named person/role:** pending; **model yes/no:** pending |
+Scope: first Production for SP 6430 / 33 Malvern
 
-Operator sign-off: **decisions #3 and #5–#8 approved; decisions #1–#2 and #9–#10 remain pending for deferred work**
+Purpose: immutable router inputs for `GRAPH-PLAN.md`; this document is not an invitation to reopen locked decisions.
 
-Committee sign-off (where required): **pending**
+| # | Decision | Recorded answer | Effect on the new graph |
+|---|---|---|---|
+| 1 | Gmail accounts/labels and inclusive date range Track B may read | **Pending human answer** | Gates deferred Track B only. No mailbox access and no v1 delay. |
+| 2 | Retention, confidentiality, exclusions, access, and deletion rules for imported mail/attachments | **Pending human answer** | Gates deferred Track B only. No mailbox access and no v1 delay. |
+| 3 | Who may approve imported records and Eve drafts | **Repository operator/owner**, recorded 2026-08-02 | Later-track policy only; Eve drafts are outside the first-Production fan-in. |
+| 4 | Frontend replace vs refactor | **Replace**, recorded 2026-08-01 | Locked. Cards/votes/updates/people is canonical language. |
+| 5 | v1 AI live Gateway vs fallback | **Verified fallback**, recorded 2026-08-04 and reaffirmed for this graph | Locked. `STRATA_AI_RELEASE_MODE=fallback`; live Gateway is later explicit opt-in. The current Production rejection is a release gap, not a reason to reopen the decision. |
+| 6 | Preview environment-variable names | **Approved publishable/secret names**, recorded 2026-08-04 | `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` may be public; server/service keys remain server-only and never enter `NEXT_PUBLIC_*`. |
+| 7 | Reviewed intake/meeting mode in v1 | **No**, recorded 2026-08-04 | Locked router excludes Track B, meetings, and minutes from v1 rehearsal. |
+| 8 | Track E in first release | **`defer-track-e-post-v1`**, recorded 2026-08-04 | Locked router excludes finance/Track E from v1 rehearsal. |
+| 9 | Photo confidentiality/consent/visibility/retention/redaction/deletion | **Pending human answer** | Gates deferred photo/Track E work only; no v1 delay. |
+| 10 | Named confirm-figure authority and draft→official model | **Pending human answer** | Gates deferred finance/Track E work only; no v1 delay. |
 
-Decision date: **decision #4 — 2026-08-01; decision #3 — 2026-08-02; decisions #5–#8 — 2026-08-04; remaining decisions pending**
+## Other locked release rules
+
+- Approval outcome is a simple majority of votes cast. Eligible count is never the denominator. A 0–0 decision is `failed`.
+- Live and staging fail closed. Missing/unavailable data is empty or a typed non-2xx response; no fire-door/demo substitution.
+- The first-Production bar is exactly vision items 1–6 in `GRAPH-AUDIT-2026-08.md`.
+- Eve drafts and inbox notifications #38 are also excluded from the first-Production fan-in.
+- The factory/Foreman outage is a runner choice, not a scope or dependency decision. A human or later agent may execute the same graph.
+- Production remains locked until the exact-candidate rehearsal passes and the operator gives `GO <sha> <deployment-id> <hostname>`.
+
+Operator sign-off already recorded: decisions #3–#8.
+
+Pending later-scope answers: #1–#2 and #9–#10.
+
+Committee participation still required for: the named second real member, recipient acceptance, secretary rehearsal, targeted live-data cleanup approval, and final Production GO.
