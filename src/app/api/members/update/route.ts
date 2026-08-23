@@ -9,7 +9,7 @@ import {
   memberStatuses,
   type MemberAccessLevel,
 } from "@/lib/member-authorization";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getSupabaseServerClient, readBearerAccessToken } from "@/lib/supabase/server";
 import type { MemberRole, MemberStatus } from "@/lib/supabase/types";
 
 function stringValue(value: unknown, label: string) {
@@ -29,10 +29,11 @@ function enumValue<T extends string>(value: unknown, allowed: Set<T>, label: str
 }
 
 export async function POST(request: NextRequest) {
+  const accessToken = readBearerAccessToken(request.headers.get("authorization"));
   let supabase;
 
   try {
-    supabase = await getSupabaseServerClient();
+    supabase = await getSupabaseServerClient(accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }
@@ -45,8 +46,8 @@ export async function POST(request: NextRequest) {
   let user;
 
   try {
-    member = await getCurrentMember(supabase);
-    const userResult = await supabase.auth.getUser();
+    member = await getCurrentMember(supabase, accessToken);
+    const userResult = await getAuthenticatedUser(supabase, accessToken);
 
     if (userResult.error && !isMissingAuthSession(userResult.error)) {
       throw upstreamUnavailable("SUPABASE_AUTH_UNAVAILABLE");

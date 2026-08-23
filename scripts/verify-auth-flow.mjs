@@ -84,6 +84,9 @@ const inviteRoute = read("src/app/api/members/invite/route.ts");
 const acceptRoute = read("src/app/api/members/accept/route.ts");
 const adminHelper = read("src/lib/supabase/admin.ts");
 const browserClient = read("src/lib/supabase/client.ts");
+const supabaseServer = read("src/lib/supabase/server.ts");
+const nextConfig = read("next.config.ts");
+const appDataRoute = read("src/app/api/app-data/route.ts");
 
 assert(packageJson.scripts["verify:auth-flow"]?.includes("verify-auth-flow"), "Missing verify:auth-flow script");
 assert(migration.includes("access_level"), "Invite migration must add access_level");
@@ -92,6 +95,15 @@ assert(migration.includes("accepted_at"), "Invite migration must add accepted_at
 assert(appData.includes('mode: "signed-out"'), "App data must expose a signed-out Supabase state");
 assert(appData.includes('.eq("status", "active")'), "Current member lookup must require active status");
 assert(appData.includes('.from("members")'), "App data must load member roster through RLS");
+assert(appData.includes("getAuthenticatedUser(supabase, accessToken)"), "Current member lookup must authenticate with the request JWT when provided");
+assert(appData.includes("getCurrentMember(supabase, accessToken)"), "App data must pass the request JWT into member lookup");
+assert(supabaseServer.includes("getUser(accessToken)"), "Server auth helper must call getUser with the request JWT");
+assert(supabaseServer.includes("persistSession: false"), "Bearer server client must not persist a cookie session");
+assert(supabaseServer.includes("createClient<Database>"), "Bearer requests must use a cookie-free Supabase client");
+assert(appDataRoute.includes("readBearerAccessToken"), "App-data route must parse the request JWT");
+assert(acceptRoute.includes("getAuthenticatedUser(supabase, accessToken)"), "Accept route must authenticate with the request JWT");
+assert(browserClient.includes("STRATA_BROWSER_BUILD_SUPABASE_URL"), "Browser client must use the build-bound Supabase URL");
+assert(nextConfig.includes("process.env.NEXT_PUBLIC_SUPABASE_URL"), "Browser build URL must match server NEXT_PUBLIC_SUPABASE_URL");
 assert(authComponent.includes("SignedOutWorkspace"), "UI must render a signed-out workspace lock");
 assert(authComponent.includes("/api/members/accept"), "Sign-in flow must call invite acceptance");
 assert(peopleComponent.includes("/api/members/invite"), "Members UI must call invite endpoint");

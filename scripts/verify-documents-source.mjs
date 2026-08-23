@@ -70,7 +70,7 @@ for (const [needle, label] of [
   ['requiredText(formValue(payload, "title")', "server document-title validation"],
   ['requiredText(formValue(payload, "documentType")', "server document-type validation"],
   ['payload.get("file")', "server file extraction"],
-  ['getCurrentMember(supabase)', "active-member authorization"],
+  ['getCurrentMember(supabase, accessToken)', "active-member authorization"],
   ['storage.from(DOCUMENT_BUCKET).upload', "bucket upload"],
   ['.from("documents")', "document persistence"],
   ['.from("attachments")', "attachment persistence"],

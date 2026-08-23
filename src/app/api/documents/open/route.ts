@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PublicRequestError, fixtureWriteDisabledResponse, operationFailureResponse, runtimeFailureResponse } from "@/lib/runtime-configuration";
 import { getCurrentMember } from "@/lib/strata-app-data";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerClient, readBearerAccessToken } from "@/lib/supabase/server";
 
 const DOCUMENT_BUCKET = "strata-documents";
 const MIN_EXPIRES_IN = 1;
@@ -30,10 +30,11 @@ function expiresInSeconds(value: unknown) {
 }
 
 export async function POST(request: NextRequest) {
+  const accessToken = readBearerAccessToken(request.headers.get("authorization"));
   let supabase;
 
   try {
-    supabase = await getSupabaseServerClient();
+    supabase = await getSupabaseServerClient(accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
   let member;
 
   try {
-    member = await getCurrentMember(supabase);
+    member = await getCurrentMember(supabase, accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }

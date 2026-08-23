@@ -26,7 +26,7 @@ import {
   type Visibility,
 } from "@/lib/strata-data";
 import { isMissingAuthSession, upstreamUnavailable } from "@/lib/runtime-configuration";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   ApprovalResponseValueDb,
   CardStatusDb,
@@ -796,11 +796,14 @@ function mapAudit(row: AuditQueryRow): AuditEvent {
   };
 }
 
-export async function getCurrentMember(supabase: AppSupabase): Promise<CurrentMember | null> {
+export async function getCurrentMember(
+  supabase: AppSupabase,
+  accessToken?: string,
+): Promise<CurrentMember | null> {
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await getAuthenticatedUser(supabase, accessToken);
 
   if (userError && !isMissingAuthSession(userError)) {
     throw upstreamUnavailable("SUPABASE_AUTH_UNAVAILABLE");
@@ -839,7 +842,7 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     };
   }
 
-  const member = await getCurrentMember(supabase);
+  const member = await getCurrentMember(supabase, accessToken);
 
   if (!member) {
     return {

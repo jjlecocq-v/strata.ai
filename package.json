@@ -26,6 +26,7 @@
     "supabase:push:schema": "node scripts/safe-supabase-push.mjs",
     "verify:production-ready": "node scripts/verify-production-ready.mjs",
     "verify:auth-flow": "node scripts/verify-auth-flow.mjs",
+    "verify:bearer-member-session": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types --experimental-loader ./scripts/test-alias-loader.mjs scripts/verify-bearer-member-session.mjs",
     "verify:recovery": "node scripts/verify-recovery-source.mjs",
     "verify:recovery-browser": "node scripts/verify-recovery-browser.mjs",
     "verify:member-management": "node scripts/verify-member-management.mjs",

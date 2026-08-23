@@ -10,7 +10,7 @@ import {
 import { RuntimeBoundaryError, resolveAiReleaseMode, runtimeFailureResponse } from "@/lib/runtime-configuration";
 import { getCurrentMember } from "@/lib/strata-app-data";
 import { canWriteRecords } from "@/lib/member-authorization";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerClient, readBearerAccessToken } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 
 export const runtime = "nodejs";
@@ -266,7 +266,7 @@ async function persistAiOutput({
     return { persisted: false };
   }
 
-  const member = await getCurrentMember(supabase);
+  const member = await getCurrentMember(supabase, accessToken);
 
   if (!member) {
     return { persisted: false };
@@ -402,7 +402,7 @@ export async function POST(request: Request, context: { params: Promise<{ task: 
   }
 
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
-  const accessToken = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  const accessToken = readBearerAccessToken(request.headers.get("authorization"));
   let contextBundle: AiContextBundle;
 
   try {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PublicRequestError, fixtureWriteDisabledResponse, isMissingAuthSession, operationFailureResponse, runtimeFailureResponse, upstreamUnavailable } from "@/lib/runtime-configuration";
 import { getCurrentMember } from "@/lib/strata-app-data";
 import { canWriteRecords } from "@/lib/member-authorization";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getSupabaseServerClient, readBearerAccessToken } from "@/lib/supabase/server";
 import type { CardTypeDb, Json, VisibilityLevel, VoteValue } from "@/lib/supabase/types";
 
 const workflowActions = new Set([
@@ -46,10 +46,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
   }
 
   const payload = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  const accessToken = readBearerAccessToken(request.headers.get("authorization"));
   let supabase;
 
   try {
-    supabase = await getSupabaseServerClient();
+    supabase = await getSupabaseServerClient(accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }
@@ -63,8 +64,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
   let user;
 
   try {
-    member = await getCurrentMember(client);
-    const userResult = await client.auth.getUser();
+    member = await getCurrentMember(client, accessToken);
+    const userResult = await getAuthenticatedUser(client, accessToken);
 
     if (userResult.error && !isMissingAuthSession(userResult.error)) {
       throw upstreamUnavailable("SUPABASE_AUTH_UNAVAILABLE");
