@@ -36,3 +36,11 @@ export async function getCurrentMember() {
 export async function getSupabaseServerClient() {
   return null;
 }
+
+export function readBearerAccessToken() {
+  return undefined;
+}
+
+export async function getAuthenticatedUser() {
+  throw new Error(rawFailure);
+}
