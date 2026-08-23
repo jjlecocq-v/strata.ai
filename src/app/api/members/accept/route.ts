@@ -1,23 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fixtureWriteDisabledResponse, isMissingAuthSession, operationFailureResponse, runtimeFailureResponse, upstreamUnavailable } from "@/lib/runtime-configuration";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-
-function bearerToken(request: NextRequest) {
-  const header = request.headers.get("authorization");
-
-  if (!header?.toLowerCase().startsWith("bearer ")) {
-    return undefined;
-  }
-
-  return header.slice("bearer ".length).trim();
-}
+import { getAuthenticatedUser, getSupabaseServerClient, readBearerAccessToken } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
+  const accessToken = readBearerAccessToken(request.headers.get("authorization"));
   let supabase;
 
   try {
-    supabase = await getSupabaseServerClient(bearerToken(request));
+    supabase = await getSupabaseServerClient(accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }
@@ -29,7 +20,7 @@ export async function POST(request: NextRequest) {
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await getAuthenticatedUser(supabase, accessToken);
 
   if (userError && !isMissingAuthSession(userError)) {
     return runtimeFailureResponse(upstreamUnavailable("SUPABASE_AUTH_UNAVAILABLE"));

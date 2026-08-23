@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PublicRequestError, fixtureWriteDisabledResponse, operationFailureResponse, runtimeFailureResponse } from "@/lib/runtime-configuration";
 import { getCurrentMember } from "@/lib/strata-app-data";
 import { canWriteRecords } from "@/lib/member-authorization";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerClient, readBearerAccessToken } from "@/lib/supabase/server";
 import type { DocumentStatusDb, Json, VisibilityLevel } from "@/lib/supabase/types";
 
 const DOCUMENT_BUCKET = "strata-documents";
@@ -84,10 +84,11 @@ function isDeferredExtractionFile(fileName: string, fileType: string) {
 
 export async function POST(request: NextRequest) {
   const payload = await parsePayload(request);
+  const accessToken = readBearerAccessToken(request.headers.get("authorization"));
   let supabase;
 
   try {
-    supabase = await getSupabaseServerClient();
+    supabase = await getSupabaseServerClient(accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
   let member;
 
   try {
-    member = await getCurrentMember(supabase);
+    member = await getCurrentMember(supabase, accessToken);
   } catch (error) {
     return runtimeFailureResponse(error);
   }

@@ -50,6 +50,8 @@ jobs:
       - run: npm run verify:capabilities
       - run: npm run verify:security
       - run: npm run verify:fail-closed
+      - run: npm run verify:auth-flow
+      - run: npm run verify:bearer-member-session
       - run: npm run verify:eve-tools
       - run: npm run verify:eve-evals
       - run: npm run verify:fallback-build

@@ -71,7 +71,7 @@ assertContains(memberLifecycleMigration, "create trigger audit_member_lifecycle"
 assertContains(memberLifecycleMigration, "insert into public.audit_log", "server-derived member audit event");
 assertNotContains(memberLifecycleMigration, "security definer", "member trigger RLS bypass");
 
-assertContains(contextSource, "getCurrentMember(supabase)", "AI context current-member lookup");
+assertContains(contextSource, "getCurrentMember(supabase, accessToken)", "AI context current-member lookup");
 assertContains(contextSource, '.from("cards")', "AI context card query");
 assertContains(contextSource, '.from("documents")', "AI context document query");
 assertContains(contextSource, "markdown_path", "AI context document markdown citation path");

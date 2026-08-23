@@ -201,7 +201,7 @@ export async function buildVisibleAiContext(request: AiContextRequest = {}, acce
     return buildFallbackAiContext(request);
   }
 
-  const member = await getCurrentMember(supabase);
+  const member = await getCurrentMember(supabase, accessToken);
 
   if (!member) {
     throw activeMemberRequired();
