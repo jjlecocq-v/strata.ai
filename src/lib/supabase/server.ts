@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { resolveRuntimeConfiguration } from "@/lib/runtime-configuration";
 import type { Database } from "./types";
@@ -29,49 +29,41 @@ export async function getSupabaseServerClient(accessToken?: string) {
   }
 
   const { url, publishableKey } = configuration.supabase;
+
+  // A request JWT must authenticate on its own. Mixing Authorization with the
+  // Next cookie store lets empty or stale cookies hide an active member from
+  // auth.getUser() and from subsequent RLS queries.
+  if (accessToken) {
+    return createClient<Database>(url, publishableKey, {
+      auth: {
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false,
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    });
+  }
+
   const cookieStore = await cookies();
 
-  // A request JWT must authenticate on its own. When a bearer token is provided,
-  // use an empty cookie adapter so stale or mismatched cookies don't interfere
-  // with the explicit JWT. The Authorization header in global.headers applies to
-  // both auth and PostgREST (database RLS) requests.
   return createServerClient<Database>(url, publishableKey, {
-    auth: accessToken
-      ? {
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
-          persistSession: false,
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Server Components can read sessions but cannot always set cookies.
         }
-      : undefined,
-    global: accessToken
-      ? {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      : undefined,
-    cookies: accessToken
-      ? {
-          getAll() {
-            return [];
-          },
-          setAll() {
-            // No-op: bearer requests don't persist cookies.
-          },
-        }
-      : {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) => {
-                cookieStore.set(name, value, options);
-              });
-            } catch {
-              // Server Components can read sessions but cannot always set cookies.
-            }
-          },
-        },
+      },
+    },
   });
 }
