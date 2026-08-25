@@ -167,7 +167,7 @@ export function PeoplePage() {
       <div className="grid gap-3">
         {rawMembers.map((member) => (
           <MemberManagementRow
-            key={`${member.id}-${member.roleValue}-${member.statusValue}-${member.accessValue}`}
+            key={member.id}
             member={member}
             canManage={canManage}
             isCurrentMember={currentMember?.id === member.id}
@@ -246,14 +246,6 @@ function MemberManagementRow({
   const [accessLevel, setAccessLevel] = React.useState(member.accessValue)
   const [result, setResult] = React.useState("Ready")
   const [isSaving, setIsSaving] = React.useState(false)
-
-  React.useEffect(() => {
-    setFullName(member.name)
-    setRole(member.roleValue)
-    setStatus(member.statusValue)
-    setAccessLevel(member.accessValue)
-  }, [member.name, member.roleValue, member.statusValue, member.accessValue])
-
   const dirty =
     fullName !== member.name ||
     role !== member.roleValue ||
