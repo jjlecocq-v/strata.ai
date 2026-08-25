@@ -167,7 +167,7 @@ export function PeoplePage() {
       <div className="grid gap-3">
         {rawMembers.map((member) => (
           <MemberManagementRow
-            key={`${member.id}-${member.roleValue}-${member.statusValue}-${member.accessValue}`}
+            key={member.id}
             member={member}
             canManage={canManage}
             isCurrentMember={currentMember?.id === member.id}
