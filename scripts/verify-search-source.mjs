@@ -41,7 +41,7 @@ for (const [needle, label] of [
   ["return <SearchPage />", "Search page routing"],
   ["`budget_line:${line.id}`", "budget-line source reference"],
   ["`expense:${expense.id}`", "expense source reference"],
-  ['select("id,budget_line_id,amount")', "expense identifier select"],
+  ['select("id,budget_line_id,account_id,amount,spent_on")', "expense identifier select"],
 ]) {
   const source = needle.includes('key: "search"') ? sidebar : needle === "search:" || needle === "return <SearchPage />" ? shell : needle.includes("budget_line") || needle.includes("expense") || needle.includes("budget_line_id") ? appData : searchPage;
   assertContains(source, needle, label);

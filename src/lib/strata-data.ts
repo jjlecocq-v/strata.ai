@@ -176,6 +176,39 @@ export interface BudgetRecommendation {
   disclaimer: string;
 }
 
+export interface LevySchedule {
+  id: string;
+  accountName: string;
+  levyType: "Admin" | "Capital" | "Special";
+  purpose: string | null;
+  amount: number;
+  dueOn: string;
+  issuedOn: string | null;
+  source: string;
+  notes: string | null;
+}
+
+export interface FundBalance {
+  id: string;
+  accountName: string;
+  balanceAsOf: string;
+  balanceAmount: number;
+  balanceType: "Opening" | "Current" | "Projected";
+  source: string;
+  notes: string | null;
+}
+
+export interface CashflowForecastMonth {
+  accountName: string;
+  forecastMonth: string;
+  openingBalance: number;
+  levyInflows: number;
+  knownOutflows: number;
+  projectedBalance: number;
+  notes: string | null;
+  dataQuality: "sourced" | "assumed" | "missing";
+}
+
 export interface Incident {
   id: string;
   title: string;
