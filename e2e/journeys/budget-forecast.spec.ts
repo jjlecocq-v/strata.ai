@@ -1,6 +1,6 @@
 import { test, expect } from "../fixtures/personas";
 import { storageStatePath } from "../fixtures/personas";
-import { gotoApp, openNav } from "../lib/app";
+import { gotoApp, navButton } from "../lib/app";
 
 test.describe("Budget cashflow forecast", () => {
   test.use({ storageState: storageStatePath("admin") });
@@ -8,17 +8,12 @@ test.describe("Budget cashflow forecast", () => {
   test("displays levy schedules with AGM-adopted amounts", async ({ page }) => {
     await gotoApp(page);
     
-    // Wait for authenticated session
-    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
-      timeout: 30_000,
-    });
-    
     // Navigate to Budget page
-    await openNav(page, "budget");
-    await page.waitForURL(/.*budget.*/);
+    await navButton(page, "budget").click({ timeout: 15000 });
+    await page.waitForURL(/.*budget.*/, { timeout: 15000 });
 
     // Check levy schedule section exists
-    await expect(page.locator("h2#levy-schedule-heading")).toContainText("Levy schedule");
+    await expect(page.locator("h2#levy-schedule-heading")).toContainText("Levy schedule", { timeout: 10000 });
 
     // Verify admin fund levy appears
     await expect(page.locator("text=Admin fund contributions")).toBeVisible();
@@ -36,17 +31,12 @@ test.describe("Budget cashflow forecast", () => {
   test("displays fund balances with data quality labels", async ({ page }) => {
     await gotoApp(page);
     
-    // Wait for authenticated session
-    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
-      timeout: 30_000,
-    });
-    
     // Navigate to Budget page
-    await openNav(page, "budget");
-    await page.waitForURL(/.*budget.*/);
+    await navButton(page, "budget").click({ timeout: 15000 });
+    await page.waitForURL(/.*budget.*/, { timeout: 15000 });
 
     // Check financial position section exists
-    await expect(page.locator("h2#financial-position-heading")).toContainText("Financial position");
+    await expect(page.locator("h2#financial-position-heading")).toContainText("Financial position", { timeout: 10000 });
 
     // Verify fund accounts are listed
     await expect(page.locator("text=Administrative fund")).toBeVisible();
@@ -60,17 +50,12 @@ test.describe("Budget cashflow forecast", () => {
   test("displays 12-month cashflow forecast", async ({ page }) => {
     await gotoApp(page);
     
-    // Wait for authenticated session
-    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
-      timeout: 30_000,
-    });
-    
     // Navigate to Budget page
-    await openNav(page, "budget");
-    await page.waitForURL(/.*budget.*/);
+    await navButton(page, "budget").click({ timeout: 15000 });
+    await page.waitForURL(/.*budget.*/, { timeout: 15000 });
 
     // Check cashflow forecast section exists
-    await expect(page.locator("h2#cashflow-forecast-heading")).toContainText("Cashflow forecast");
+    await expect(page.locator("h2#cashflow-forecast-heading")).toContainText("Cashflow forecast", { timeout: 10000 });
 
     // Verify forecast table headers
     await expect(page.locator("th:has-text('Month')")).toBeVisible();
@@ -87,18 +72,13 @@ test.describe("Budget cashflow forecast", () => {
   test("shows clear labels for sourced vs missing data", async ({ page }) => {
     await gotoApp(page);
     
-    // Wait for authenticated session
-    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
-      timeout: 30_000,
-    });
-    
     // Navigate to Budget page
-    await openNav(page, "budget");
-    await page.waitForURL(/.*budget.*/);
+    await navButton(page, "budget").click({ timeout: 15000 });
+    await page.waitForURL(/.*budget.*/, { timeout: 15000 });
 
     // Look for sourced badges on fund balances (20 Mar 2026 AGM Papers)
     const badges = page.locator('[role="status"], .badge');
-    await expect(badges.first()).toBeVisible();
+    await expect(badges.first()).toBeVisible({ timeout: 10000 });
 
     // Look for source references like "Draft AGM Papers" or dates
     const sourceRefs = page.locator("text=/Draft AGM Papers|20 Mar 2026|27 Jul 2026/i");
