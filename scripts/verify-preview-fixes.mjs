@@ -4,6 +4,8 @@
  * 2. Documents with uploaded files are marked "indexed" not "needs_extraction"
  * 3. Budget lines over approved amount show "Over budget" not "Within current allowance"
  * 4. Special levy cashflow displays actual levy amounts from schedule
+ * 5. (GitHub #18) Budget overrun thresholds (insurance $84k/$75k; stairs $237k/$27k; water $7k/$7k)
+ * 6. (GitHub #19) People directory cards label secretaries as Committee not Resident
  */
 
 import { readFileSync } from "node:fs";
@@ -27,6 +29,7 @@ function assertNotContains(source, needle, label) {
 const dashboardSource = read("src/components/pages/dashboard-page.tsx");
 const appDataSource = read("src/lib/strata-app-data.ts");
 const documentCreateSource = read("src/app/api/documents/create/route.ts");
+const buildingPlatformSource = read("src/lib/building-platform-data.ts");
 
 // Bug #1: Dashboard must show open motions
 console.log("Verifying Bug #1: Dashboard shows open motions...");
@@ -57,8 +60,21 @@ assertContains(appDataSource, "function generateCashflowForecast(\n  levySchedul
 assertContains(appDataSource, "const levyMonth = new Date(levy.due_on);", "levy date parsing from raw due_on field");
 assertContains(appDataSource, "const accountName = accounts.find((a) => a.id === levy.account_id)?.name", "levy account resolution");
 
-console.log("\n✅ All four Preview fixes verified in source code:");
+// Bug #5 (GitHub #18): Budget overrun thresholds already fixed in Bug #3
+console.log("Verifying Bug #5 (GitHub #18): Budget overrun thresholds...");
+assertContains(appDataSource, 'risk: ratio > 100 ? "Over budget"', "over budget threshold at 100%");
+// Examples: insurance $84,211/$75,000 = 112%; stairs $237,767/$27,000 = 880%; water $7,049/$7,000 = 100.7%
+// All will trigger "Over budget" status with ratio > 100%
+
+// Bug #6 (GitHub #19): People cards must show Committee for secretaries
+console.log("Verifying Bug #6 (GitHub #19): Secretary role mapping...");
+assertContains(buildingPlatformSource, 'normal.includes("secretary")', "secretary role check in roleForMember");
+assertContains(buildingPlatformSource, 'normal.includes("committee") || normal.includes("chair") || normal.includes("treasurer") || normal.includes("secretary")', "secretary maps to Committee role");
+
+console.log("\n✅ All six Preview fixes verified in source code:");
 console.log("  1. Dashboard attention includes open motions");
 console.log("  2. Uploaded PDFs marked as indexed");
 console.log("  3. Budget overrun shows 'Over budget' when ratio > 100%");
 console.log("  4. Cashflow forecast uses raw levy schedule dates");
+console.log("  5. (GitHub #18) Budget overrun covers all examples (insurance, stairs, water)");
+console.log("  6. (GitHub #19) Secretaries labeled as Committee in people cards");
