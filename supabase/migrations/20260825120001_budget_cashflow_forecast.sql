@@ -126,13 +126,13 @@ grant select, insert, update, delete on public.cashflow_forecast to authenticate
 -- Only insert if the committee exists to avoid foreign key violation.
 insert into public.accounts (id, committee_id, name, account_type, opening_balance)
 select
-  id, committee_id, name, account_type, opening_balance
+  id::uuid, committee_id::uuid, name, account_type::public.account_type, opening_balance
 from (values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'Administrative fund', 'admin', 0),
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '11111111-1111-1111-1111-111111111111', 'Capital works fund', 'capital', 0),
   ('cccccccc-cccc-cccc-cccc-cccccccccccc', '11111111-1111-1111-1111-111111111111', 'Special levy - balcony/spalling', 'special', 0)
 ) as new_accounts(id, committee_id, name, account_type, opening_balance)
-where exists (select 1 from public.committees where id = '11111111-1111-1111-1111-111111111111')
+where exists (select 1 from public.committees where id = '11111111-1111-1111-1111-111111111111'::uuid)
 on conflict (id) do nothing;
 
 -- Create budget period FY26-27 if it doesn't exist.
