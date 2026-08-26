@@ -602,6 +602,12 @@ function mapDocument(
     ...citations,
   ]);
 
+  // Documents with valid storage paths should show as "Indexed" even if DB says "needs_extraction"
+  const hasFile = Boolean(row.storage_path || storageObjectPath || linkedAttachment);
+  const effectiveStatus = (row.indexed_status === "needs_extraction" && hasFile)
+    ? "indexed"
+    : row.indexed_status;
+
   return {
     id: row.id,
     sourceRefs,
@@ -609,7 +615,7 @@ function mapDocument(
     type: row.document_type,
     date: row.source_date ?? "Not dated",
     visibility: visibilityMap[row.visibility],
-    status: documentStatusMap[row.indexed_status],
+    status: documentStatusMap[effectiveStatus],
     linkedTo,
     storagePath: row.storage_path ?? (storageObjectPath ? `strata-documents/${storageObjectPath}` : "No storage object"),
     extractedTextPath: row.extracted_text_path ?? "Pending extraction",
@@ -942,8 +948,22 @@ function generateCashflowForecast(
           : "sourced"
       : "assumed";
 
+    // Check for past levies that should be in opening balance
+    const pastLevies = accountLevies.filter((levy) => {
+      const levyDate = new Date(levy.due_on);
+      return levyDate < today;
+    });
+    const pastLevyTotal = pastLevies.reduce((sum, levy) => sum + levy.amount, 0);
+    const hasPastLevies = pastLevies.length > 0;
+
+    // Add past levies to opening balance (as received or overdue)
+    if (hasPastLevies) {
+      runningBalance += pastLevyTotal;
+    }
+
     for (const forecastMonth of forecastMonths) {
       const monthKey = formatMonthKey(forecastMonth);
+      const isFirstMonth = forecastMonth.getTime() === forecastMonths[0].getTime();
       
       // Sum levies due in this month
       const levyInflows = accountLevies
@@ -966,6 +986,17 @@ function generateCashflowForecast(
 
       const projectedBalance = runningBalance + levyInflows - knownOutflows;
 
+      // Add explanatory note for first month if there are past levies
+      let notes: string | null = null;
+      if (isFirstMonth && hasPastLevies) {
+        const formatter = new Intl.NumberFormat("en-AU", {
+          style: "currency",
+          currency: "AUD",
+          maximumFractionDigits: 0,
+        });
+        notes = `Opening balance reflects ${pastLevies.length} past levy schedule(s) totaling ${formatter.format(pastLevyTotal)} due before forecast period`;
+      }
+
       forecast.push({
         accountName: account.name,
         forecastMonth: monthKey,
@@ -973,7 +1004,7 @@ function generateCashflowForecast(
         levyInflows,
         knownOutflows,
         projectedBalance,
-        notes: null,
+        notes,
         dataQuality,
       });
 

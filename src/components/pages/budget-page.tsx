@@ -266,21 +266,30 @@ export function BudgetPage() {
                       </TableHeader>
                       <TableBody>
                         {forecast.map((month) => (
-                          <TableRow key={month.forecastMonth}>
-                            <TableCell className="font-medium">
-                              {new Date(month.forecastMonth).toLocaleDateString("en-AU", { month: "short", year: "numeric" })}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums">{currency.format(month.openingBalance)}</TableCell>
-                            <TableCell className="text-right tabular-nums text-green-600">
-                              {month.levyInflows > 0 ? `+${currency.format(month.levyInflows)}` : "—"}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums text-red-600">
-                              {month.knownOutflows > 0 ? `−${currency.format(month.knownOutflows)}` : "—"}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums font-semibold">
-                              {currency.format(month.projectedBalance)}
-                            </TableCell>
-                          </TableRow>
+                          <>
+                            <TableRow key={month.forecastMonth}>
+                              <TableCell className="font-medium">
+                                {new Date(month.forecastMonth).toLocaleDateString("en-AU", { month: "short", year: "numeric" })}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums">{currency.format(month.openingBalance)}</TableCell>
+                              <TableCell className="text-right tabular-nums text-green-600">
+                                {month.levyInflows > 0 ? `+${currency.format(month.levyInflows)}` : "—"}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums text-red-600">
+                                {month.knownOutflows > 0 ? `−${currency.format(month.knownOutflows)}` : "—"}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums font-semibold">
+                                {currency.format(month.projectedBalance)}
+                              </TableCell>
+                            </TableRow>
+                            {month.notes && (
+                              <TableRow key={`${month.forecastMonth}-note`}>
+                                <TableCell colSpan={5} className="bg-muted/30 py-2 text-xs italic text-muted-foreground">
+                                  {month.notes}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </>
                         ))}
                       </TableBody>
                     </Table>
