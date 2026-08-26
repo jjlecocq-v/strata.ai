@@ -1,8 +1,9 @@
 import { test, expect } from "../fixtures/personas";
+import { storageStatePath } from "../fixtures/personas";
 import { gotoApp, openNav } from "../lib/app";
 
 test.describe("Budget cashflow forecast", () => {
-  test.use({ storageState: "../fixtures/storage/admin.json" });
+  test.use({ storageState: storageStatePath("admin") });
 
   test("displays levy schedules with AGM-adopted amounts", async ({ page }) => {
     await gotoApp(page);
