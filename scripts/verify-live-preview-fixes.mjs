@@ -32,7 +32,7 @@ console.log("Verifying #21 Part 2: Open button for documents with files...");
 assertContains(documentsPageSource, "async function openDocument(documentId: string, name: string)", "openDocument function");
 assertContains(documentsPageSource, 'await fetch("/api/documents/open"', "call documents open API");
 assertContains(documentsPageSource, 'window.open(body.url, "_blank"', "open document URL");
-assertContains(documentsPageSource, '{document.status !== "Needs extraction" && (', "conditional Open button");
+assertContains(documentsPageSource, '{document.extractionStatus !== "Needs extraction" && (', "conditional Open button");
 assertContains(documentsPageSource, "onClick={() => openDocument(document.id, document.name)}", "Open button click handler");
 
 // Fix #22 Part 1: Past levies added to opening balance

@@ -150,7 +150,7 @@ export function DocumentsPage() {
                 </div>
               </div>
               <div className="px-4 pb-3">
-                {document.status !== "Needs extraction" && (
+                {document.extractionStatus !== "Needs extraction" && (
                   <div className="mb-3 flex gap-2">
                     <Button
                       size="sm"
