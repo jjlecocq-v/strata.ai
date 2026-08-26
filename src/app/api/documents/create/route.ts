@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
     const storagePath = `${DOCUMENT_BUCKET}/${storageObjectPath}`;
     const extractedTextPath = extractedText ? `${member.committee_id}/${id}/extracted.txt` : null;
     const markdownPath = `${member.committee_id}/${id}/document.md`;
-    const indexedStatus: DocumentStatusDb = extractedText ? "markdown_ready" : "needs_extraction";
+    const indexedStatus: DocumentStatusDb = extractedText ? "markdown_ready" : file ? "indexed" : "needs_extraction";
     let uploadedObjectPath: string | null = null;
     const uploadBody = file ?? (extractedText ? new Blob([extractedText], { type: "text/plain" }) : null);
 

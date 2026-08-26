@@ -30,7 +30,7 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 
 export function DashboardPage() {
-  const { activity, cards, setPage, openCard, rawProjects, sourceDetail } = useAppStore()
+  const { activity, cards, setPage, openCard, openMotion, rawProjects, sourceDetail, motions } = useAppStore()
 
   const votes = cards.filter((c): c is VoteCard => c.type === "vote")
   const activeVotes = votes.filter(
@@ -41,6 +41,7 @@ export function DashboardPage() {
   const published = cards.filter(
     (c) => c.type === "update" && c.status === "Published",
   )
+  const openMotions = motions.filter((m) => m.status === "Open")
   const avgTurnout =
     activeVotes.length === 0
       ? 0
@@ -50,44 +51,57 @@ export function DashboardPage() {
         )
 
   const attention = [
+    ...openMotions.map((m) => ({
+      id: m.id,
+      title: m.title,
+      note: "Open motion — requires committee decision",
+      icon: VoteIcon,
+      isMotion: true,
+    })),
     ...closingSoon.map((v) => ({
       id: v.id,
       title: v.title,
       note: `Vote closes in ${daysUntil(v.deadline)} days`,
       icon: CalendarClock,
+      isMotion: false,
     })),
     ...drafts.map((d) => ({
       id: d.id,
       title: d.title,
       note: `${d.type === "vote" ? "Vote" : "Update"} draft — not published`,
       icon: FileText,
+      isMotion: false,
     })),
   ].slice(0, 4)
 
   const stats = [
     {
+      label: "Open motions",
+      value: openMotions.length,
+      icon: VoteIcon,
+      sourceIds: openMotions.map((motion) => motion.id),
+      isMotion: true,
+    },
+    {
       label: "Active votes",
       value: activeVotes.length,
       icon: VoteIcon,
       sourceIds: activeVotes.map((vote) => vote.id),
+      isMotion: false,
     },
     {
       label: "Avg. turnout",
       value: `${avgTurnout}%`,
       icon: TrendingUp,
       sourceIds: activeVotes.map((vote) => vote.id),
+      isMotion: false,
     },
     {
       label: "Published updates",
       value: published.length,
       icon: MessageSquare,
       sourceIds: published.map((update) => update.id),
-    },
-    {
-      label: "Pending drafts",
-      value: drafts.length,
-      icon: FileText,
-      sourceIds: drafts.map((draft) => draft.id),
+      isMotion: false,
     },
   ]
 
@@ -125,18 +139,18 @@ export function DashboardPage() {
                       Sources ({s.sourceIds.length})
                     </summary>
                     {s.sourceIds.length === 0 ? (
-                      <p className="mt-1">No matching card records.</p>
+                      <p className="mt-1">No matching {s.isMotion ? "motion" : "card"} records.</p>
                     ) : (
                       <div className="mt-1 flex max-w-full flex-col gap-1">
                         {s.sourceIds.map((id) => (
                           <button
                             key={id}
                             type="button"
-                            onClick={() => openCard(id)}
+                            onClick={() => s.isMotion ? openMotion(id) : openCard(id)}
                             className="min-h-11 max-w-full truncate text-left font-mono text-[10px] underline-offset-2 hover:underline md:min-h-0"
-                            title={`card:${id}`}
+                            title={`${s.isMotion ? "motion" : "card"}:${id}`}
                           >
-                            card:{id}
+                            {s.isMotion ? "motion" : "card"}:{id}
                           </button>
                         ))}
                       </div>
@@ -170,7 +184,7 @@ export function DashboardPage() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => openCard(item.id)}
+                  onClick={() => item.isMotion ? openMotion(item.id) : openCard(item.id)}
                   className="flex items-center gap-3 rounded-lg border border-border px-3 py-3 text-left transition-colors hover:bg-secondary/60"
                 >
                   <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-warning/15 text-warning">
@@ -180,7 +194,7 @@ export function DashboardPage() {
                     <p className="truncate text-sm font-medium">{item.title}</p>
                     <p className="text-xs text-muted-foreground">{item.note}</p>
                     <p className="truncate font-mono text-[10px] text-muted-foreground">
-                      Source card:{item.id}
+                      Source {item.isMotion ? "motion" : "card"}:{item.id}
                     </p>
                   </div>
                   <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
