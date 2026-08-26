@@ -148,9 +148,9 @@ export function DashboardPage() {
                             type="button"
                             onClick={() => s.isMotion ? openMotion(id) : openCard(id)}
                             className="min-h-11 max-w-full truncate text-left font-mono text-[10px] underline-offset-2 hover:underline md:min-h-0"
-                            title={`${s.isMotion ? "motion" : "card"}:${id}`}
+                            title={s.isMotion ? `motion:${id}` : `card:${id}`}
                           >
-                            {s.isMotion ? "motion" : "card"}:{id}
+                            {s.isMotion ? <>motion:{id}</> : <>card:{id}</>}
                           </button>
                         ))}
                       </div>
