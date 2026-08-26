@@ -782,7 +782,8 @@ function mapBudgetLines(
     const committed = lineAllowances.reduce((sum, allowance) => sum + allowance.committed_amount, 0);
     const actual = lineExpenses.reduce((sum, expense) => sum + expense.amount, 0);
     const account = accounts.find((item) => item.id === line.account_id)?.name ?? "Unassigned account";
-    const ratio = line.approved_amount ? Math.round((committed / line.approved_amount) * 100) : 0;
+    const totalSpend = Math.max(committed, actual);
+    const ratio = line.approved_amount ? Math.round((totalSpend / line.approved_amount) * 100) : 0;
 
     return {
       sourceRefs: uniqueStrings([
@@ -796,7 +797,7 @@ function mapBudgetLines(
       approved: line.approved_amount,
       committed,
       actual,
-      risk: ratio > 95 ? "Allowance pressure" : ratio > 75 ? "Monitor committed spend" : "Within current allowance",
+      risk: ratio > 100 ? "Over budget" : ratio > 95 ? "Allowance pressure" : ratio > 75 ? "Monitor committed spend" : "Within current allowance",
     };
   });
 }
@@ -874,8 +875,8 @@ function mapFundBalances(
 }
 
 function generateCashflowForecast(
-  levySchedules: LevySchedule[],
-  fundBalances: FundBalance[],
+  levySchedules: LevyScheduleQueryRow[],
+  fundBalances: FundBalanceQueryRow[],
   expenses: ExpenseQueryRow[],
   invoices: InvoiceQueryRow[],
   accounts: AccountQueryRow[],
@@ -891,23 +892,25 @@ function generateCashflowForecast(
   const forecast: CashflowForecastMonth[] = [];
 
   // Group levies by account
-  const leviesByAccount = new Map<string, LevySchedule[]>();
+  const leviesByAccount = new Map<string, LevyScheduleQueryRow[]>();
   for (const levy of levySchedules) {
-    if (!leviesByAccount.has(levy.accountName)) {
-      leviesByAccount.set(levy.accountName, []);
+    const accountName = accounts.find((a) => a.id === levy.account_id)?.name ?? "Unassigned account";
+    if (!leviesByAccount.has(accountName)) {
+      leviesByAccount.set(accountName, []);
     }
-    leviesByAccount.get(levy.accountName)!.push(levy);
+    leviesByAccount.get(accountName)!.push(levy);
   }
 
   // Get opening balances by account
   const openingBalances = new Map<string, number>();
-  for (const balance of fundBalances.filter((b) => b.balanceType === "Opening" || b.balanceType === "Current")) {
+  for (const balance of fundBalances.filter((b) => b.balance_type === "opening" || b.balance_type === "current")) {
+    const accountName = accounts.find((a) => a.id === balance.account_id)?.name ?? "Unassigned account";
     // If account_id is null, this is total unsplit balance
-    if (balance.accountName === "Unassigned account") {
+    if (accountName === "Unassigned account") {
       // Skip unallocated balances in per-account forecast
       continue;
     }
-    openingBalances.set(balance.accountName, balance.balanceAmount);
+    openingBalances.set(accountName, balance.balance_amount);
   }
 
   // Group expenses by account
@@ -930,11 +933,11 @@ function generateCashflowForecast(
     let runningBalance = openingBalances.get(account.name) ?? 0;
     
     // Determine data quality from fund balances
-    const balanceRecord = fundBalances.find((b) => b.accountName === account.name);
+    const balanceRecord = fundBalances.find((b) => b.account_id === account.id);
     const dataQuality = balanceRecord 
       ? balanceRecord.source === "missing" 
         ? "missing"
-        : balanceRecord.source === "assumed"
+        : balanceRecord.source === "manual"
           ? "assumed"
           : "sourced"
       : "assumed";
@@ -945,7 +948,7 @@ function generateCashflowForecast(
       // Sum levies due in this month
       const levyInflows = accountLevies
         .filter((levy) => {
-          const levyMonth = new Date(levy.dueOn);
+          const levyMonth = new Date(levy.due_on);
           return levyMonth.getFullYear() === forecastMonth.getFullYear() &&
                  levyMonth.getMonth() === forecastMonth.getMonth();
         })
@@ -1287,8 +1290,8 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
   const levySchedules = mapLevySchedules(supabaseLevySchedules, supabaseAccounts);
   const fundBalances = mapFundBalances(supabaseFundBalances, supabaseAccounts);
   const cashflowForecast = generateCashflowForecast(
-    levySchedules,
-    fundBalances,
+    supabaseLevySchedules,
+    supabaseFundBalances,
     supabaseExpenses,
     supabaseInvoices,
     supabaseAccounts,

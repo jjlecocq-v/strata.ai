@@ -189,7 +189,7 @@ function audienceForVisibility(visibility: Visibility): Audience {
 function roleForMember(role: string): Person["role"] {
   const normal = role.toLowerCase();
   if (normal.includes("manager") || normal.includes("admin")) return "Manager";
-  if (normal.includes("committee") || normal.includes("chair") || normal.includes("treasurer")) return "Committee";
+  if (normal.includes("committee") || normal.includes("chair") || normal.includes("treasurer") || normal.includes("secretary")) return "Committee";
   if (normal.includes("tenant")) return "Tenant";
   if (normal.includes("owner")) return "Owner";
   return "Resident";
