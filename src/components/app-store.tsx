@@ -23,6 +23,9 @@ interface AppStore {
   rawVendors: StrataAppData["vendors"]
   rawBudgetLines: StrataAppData["budgetLines"]
   rawBudgetRecommendation: StrataAppData["budgetRecommendation"]
+  rawLevySchedules: StrataAppData["levySchedules"]
+  rawFundBalances: StrataAppData["fundBalances"]
+  rawCashflowForecast: StrataAppData["cashflowForecast"]
   currentMember: StrataAppData["auth"]["member"]
   sourceDetail: string
   refreshStatus: string
@@ -136,6 +139,9 @@ export function AppStoreProvider({
         citations: [],
         disclaimer: "",
       },
+      rawLevySchedules: initialData?.levySchedules ?? [],
+      rawFundBalances: initialData?.fundBalances ?? [],
+      rawCashflowForecast: initialData?.cashflowForecast ?? [],
       currentMember: initialData?.auth.member ?? null,
       sourceDetail: initialData?.sourceDetail ?? "Seeded local data",
       refreshStatus,

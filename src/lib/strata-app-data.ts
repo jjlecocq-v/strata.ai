@@ -14,9 +14,12 @@ import {
   type BudgetRecommendation,
   type CardStatus,
   type CardType,
+  type CashflowForecastMonth,
   type DocumentRecord,
+  type FundBalance,
   type GovernanceCard,
   type InvoiceSummary,
+  type LevySchedule,
   type Member,
   type Motion,
   type MotionOutcome,
@@ -67,6 +70,9 @@ export interface StrataAppData {
   activity: AuditEvent[];
   budgetLines: BudgetLine[];
   budgetRecommendation: BudgetRecommendation;
+  levySchedules: LevySchedule[];
+  fundBalances: FundBalance[];
+  cashflowForecast: CashflowForecastMonth[];
 }
 
 export interface CurrentMember {
@@ -288,6 +294,28 @@ type VariationQueryRow = {
   status: string;
 };
 
+type LevyScheduleQueryRow = {
+  id: string;
+  account_id: string | null;
+  levy_type: string;
+  purpose: string | null;
+  amount: number;
+  due_on: string;
+  issued_on: string | null;
+  source: string;
+  notes: string | null;
+};
+
+type FundBalanceQueryRow = {
+  id: string;
+  account_id: string | null;
+  balance_as_of: string;
+  balance_amount: number;
+  balance_type: string;
+  source: string;
+  notes: string | null;
+};
+
 export const fallbackAppData: StrataAppData = {
   source: "fallback",
   sourceDetail: "Seeded local data",
@@ -310,6 +338,9 @@ export const fallbackAppData: StrataAppData = {
     citations: ["Local fallback budget lines", "Local fallback project records"],
     disclaimer: "General information only. Not legal, financial, or accounting advice.",
   },
+  levySchedules: [],
+  fundBalances: [],
+  cashflowForecast: [],
 };
 
 const cardStatusMap: Record<CardStatusDb, CardStatus> = {
@@ -796,6 +827,131 @@ function mapAudit(row: AuditQueryRow): AuditEvent {
   };
 }
 
+function mapLevySchedules(
+  rows: LevyScheduleQueryRow[],
+  accounts: AccountQueryRow[],
+): LevySchedule[] {
+  const levyTypeMap: Record<string, LevySchedule["levyType"]> = {
+    admin: "Admin",
+    capital: "Capital",
+    special: "Special",
+  };
+
+  return rows.map((row) => ({
+    id: row.id,
+    accountName: accounts.find((a) => a.id === row.account_id)?.name ?? "Unassigned account",
+    levyType: levyTypeMap[row.levy_type] ?? "Admin",
+    purpose: row.purpose,
+    amount: row.amount,
+    dueOn: formatDate(row.due_on),
+    issuedOn: row.issued_on ? formatDate(row.issued_on) : null,
+    source: row.source,
+    notes: row.notes,
+  }));
+}
+
+function mapFundBalances(
+  rows: FundBalanceQueryRow[],
+  accounts: AccountQueryRow[],
+): FundBalance[] {
+  const balanceTypeMap: Record<string, FundBalance["balanceType"]> = {
+    opening: "Opening",
+    current: "Current",
+    projected: "Projected",
+  };
+
+  return rows.map((row) => ({
+    id: row.id,
+    accountName: accounts.find((a) => a.id === row.account_id)?.name ?? "Unassigned account",
+    balanceAsOf: formatDate(row.balance_as_of),
+    balanceAmount: row.balance_amount,
+    balanceType: balanceTypeMap[row.balance_type] ?? "Current",
+    source: row.source,
+    notes: row.notes,
+  }));
+}
+
+function generateCashflowForecast(
+  levySchedules: LevySchedule[],
+  fundBalances: FundBalance[],
+  expenses: ExpenseQueryRow[],
+  invoices: InvoiceQueryRow[],
+  accounts: AccountQueryRow[],
+): CashflowForecastMonth[] {
+  // Generate 12-month forecast from today
+  const today = new Date();
+  const forecastMonths: Date[] = [];
+  for (let i = 0; i < 12; i++) {
+    const month = new Date(today.getFullYear(), today.getMonth() + i, 1);
+    forecastMonths.push(month);
+  }
+
+  const forecast: CashflowForecastMonth[] = [];
+
+  // Group levies by account
+  const leviesByAccount = new Map<string, LevySchedule[]>();
+  for (const levy of levySchedules) {
+    if (!leviesByAccount.has(levy.accountName)) {
+      leviesByAccount.set(levy.accountName, []);
+    }
+    leviesByAccount.get(levy.accountName)!.push(levy);
+  }
+
+  // Get opening balances by account
+  const openingBalances = new Map<string, number>();
+  for (const balance of fundBalances.filter((b) => b.balanceType === "Opening" || b.balanceType === "Current")) {
+    openingBalances.set(balance.accountName, balance.balanceAmount);
+  }
+
+  // Generate forecast per account
+  for (const account of accounts) {
+    const accountLevies = leviesByAccount.get(account.name) ?? [];
+    let runningBalance = openingBalances.get(account.name) ?? 0;
+    const dataQuality = openingBalances.has(account.name) && openingBalances.get(account.name)! > 0 
+      ? "sourced" 
+      : openingBalances.has(account.name) && fundBalances.find((b) => b.accountName === account.name && b.source === "missing")
+        ? "missing"
+        : "assumed";
+
+    for (const forecastMonth of forecastMonths) {
+      const monthKey = formatMonthKey(forecastMonth);
+      
+      // Sum levies due in this month
+      const levyInflows = accountLevies
+        .filter((levy) => {
+          const levyMonth = new Date(levy.dueOn);
+          return levyMonth.getFullYear() === forecastMonth.getFullYear() &&
+                 levyMonth.getMonth() === forecastMonth.getMonth();
+        })
+        .reduce((sum, levy) => sum + levy.amount, 0);
+
+      // Known outflows: simplified for now (would need expense dates in real implementation)
+      const knownOutflows = 0;
+
+      const projectedBalance = runningBalance + levyInflows - knownOutflows;
+
+      forecast.push({
+        accountName: account.name,
+        forecastMonth: monthKey,
+        openingBalance: runningBalance,
+        levyInflows,
+        knownOutflows,
+        projectedBalance,
+        notes: null,
+        dataQuality,
+      });
+
+      runningBalance = projectedBalance;
+    }
+  }
+
+  return forecast;
+}
+
+function formatMonthKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+}
+
 export async function getCurrentMember(
   supabase: AppSupabase,
   accessToken?: string,
@@ -866,6 +1022,9 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
         citations: [],
         disclaimer: "General information only. Not legal, financial, accounting, engineering, or strata management advice.",
       },
+      levySchedules: [],
+      fundBalances: [],
+      cashflowForecast: [],
     };
   }
 
@@ -898,6 +1057,8 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     motionsResult,
     approvalRequestsResult,
     approvalResponsesResult,
+    levySchedulesResult,
+    fundBalancesResult,
   ] = await Promise.all([
     supabase
       .from("cards")
@@ -985,6 +1146,18 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
       .select("id,approval_request_id,member_id,response,created_at,responded_at,member:members!approval_responses_member_id_fkey(full_name)")
       .eq("committee_id", member.committee_id)
       .limit(200),
+    supabase
+      .from("levy_schedules")
+      .select("id,account_id,levy_type,purpose,amount,due_on,issued_on,source,notes")
+      .eq("committee_id", member.committee_id)
+      .order("due_on")
+      .limit(100),
+    supabase
+      .from("fund_balances")
+      .select("id,account_id,balance_as_of,balance_amount,balance_type,source,notes")
+      .eq("committee_id", member.committee_id)
+      .order("balance_as_of", { ascending: false })
+      .limit(50),
   ]);
 
   if (
@@ -1005,7 +1178,9 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     membersResult.error ||
     motionsResult.error ||
     approvalRequestsResult.error ||
-    approvalResponsesResult.error
+    approvalResponsesResult.error ||
+    levySchedulesResult.error ||
+    fundBalancesResult.error
   ) {
     throw upstreamUnavailable("SUPABASE_APP_DATA_QUERY_FAILED");
   }
@@ -1028,6 +1203,8 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
   const supabaseMotions = (motionsResult.data ?? []) as unknown as MotionQueryRow[];
   const supabaseApprovalRequests = (approvalRequestsResult.data ?? []) as unknown as ApprovalRequestQueryRow[];
   const supabaseApprovalResponses = (approvalResponsesResult.data ?? []) as unknown as ApprovalResponseQueryRow[];
+  const supabaseLevySchedules = (levySchedulesResult.data ?? []) as unknown as LevyScheduleQueryRow[];
+  const supabaseFundBalances = (fundBalancesResult.data ?? []) as unknown as FundBalanceQueryRow[];
   const activity = supabaseActivity.map(mapAudit);
   const motions = supabaseMotions.length
     ? supabaseMotions.map((motion) =>
@@ -1074,6 +1251,15 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     ],
     disclaimer: "General information only. Not legal, financial, accounting, engineering, or strata management advice.",
   };
+  const levySchedules = mapLevySchedules(supabaseLevySchedules, supabaseAccounts);
+  const fundBalances = mapFundBalances(supabaseFundBalances, supabaseAccounts);
+  const cashflowForecast = generateCashflowForecast(
+    levySchedules,
+    fundBalances,
+    supabaseExpenses,
+    supabaseInvoices,
+    supabaseAccounts,
+  );
 
   return {
     source: "supabase",
@@ -1099,5 +1285,8 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     activity,
     budgetLines,
     budgetRecommendation,
+    levySchedules,
+    fundBalances,
+    cashflowForecast,
   };
 }
