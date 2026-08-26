@@ -136,8 +136,13 @@ where exists (select 1 from public.committees where id = '11111111-1111-1111-111
 on conflict (id) do nothing;
 
 -- Create budget period FY26-27 if it doesn't exist.
+-- Only insert if the committee exists to avoid foreign key violation.
 insert into public.budget_periods (id, committee_id, name, starts_on, ends_on)
-values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', '11111111-1111-1111-1111-111111111111', 'FY 2026-27', '2026-07-01', '2027-06-30')
+select id, committee_id, name, starts_on, ends_on
+from (values
+  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27'::uuid, '11111111-1111-1111-1111-111111111111'::uuid, 'FY 2026-27', '2026-07-01'::date, '2027-06-30'::date)
+) as new_period(id, committee_id, name, starts_on, ends_on)
+where exists (select 1 from public.committees where id = '11111111-1111-1111-1111-111111111111'::uuid)
 on conflict (id) do nothing;
 
 -- Admin fund levy schedule (AGM 14 Apr 2026):
