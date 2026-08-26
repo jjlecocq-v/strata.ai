@@ -1,17 +1,19 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/personas";
+import { gotoApp, openNav } from "../lib/app";
 
 test.describe("Budget cashflow forecast", () => {
+  test.use({ storageState: "../fixtures/storage/admin.json" });
+
   test("displays levy schedules with AGM-adopted amounts", async ({ page }) => {
-    // Sign in as admin to view budget page
-    await page.goto("/auth/sign-in");
-    await page.fill('input[type="email"]', process.env.STRATA_ADMIN_EMAIL ?? "strata.fixture.admin@example.invalid");
-    await page.fill('input[type="password"]', process.env.STRATA_ADMIN_PASSWORD ?? "LocalFixtureAdmin123!");
-    await page.click('button[type="submit"]');
+    await gotoApp(page);
     
-    await page.waitForURL("/");
+    // Wait for authenticated session
+    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
+      timeout: 30_000,
+    });
     
     // Navigate to Budget page
-    await page.click('a[href*="budget"]');
+    await openNav(page, "budget");
     await page.waitForURL(/.*budget.*/);
 
     // Check levy schedule section exists
@@ -31,13 +33,15 @@ test.describe("Budget cashflow forecast", () => {
   });
 
   test("displays fund balances with data quality labels", async ({ page }) => {
-    await page.goto("/auth/sign-in");
-    await page.fill('input[type="email"]', process.env.STRATA_ADMIN_EMAIL ?? "strata.fixture.admin@example.invalid");
-    await page.fill('input[type="password"]', process.env.STRATA_ADMIN_PASSWORD ?? "LocalFixtureAdmin123!");
-    await page.click('button[type="submit"]');
+    await gotoApp(page);
     
-    await page.waitForURL("/");
-    await page.click('a[href*="budget"]');
+    // Wait for authenticated session
+    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
+      timeout: 30_000,
+    });
+    
+    // Navigate to Budget page
+    await openNav(page, "budget");
     await page.waitForURL(/.*budget.*/);
 
     // Check financial position section exists
@@ -53,13 +57,15 @@ test.describe("Budget cashflow forecast", () => {
   });
 
   test("displays 12-month cashflow forecast", async ({ page }) => {
-    await page.goto("/auth/sign-in");
-    await page.fill('input[type="email"]', process.env.STRATA_ADMIN_EMAIL ?? "strata.fixture.admin@example.invalid");
-    await page.fill('input[type="password"]', process.env.STRATA_ADMIN_PASSWORD ?? "LocalFixtureAdmin123!");
-    await page.click('button[type="submit"]');
+    await gotoApp(page);
     
-    await page.waitForURL("/");
-    await page.click('a[href*="budget"]');
+    // Wait for authenticated session
+    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
+      timeout: 30_000,
+    });
+    
+    // Navigate to Budget page
+    await openNav(page, "budget");
     await page.waitForURL(/.*budget.*/);
 
     // Check cashflow forecast section exists
@@ -78,13 +84,15 @@ test.describe("Budget cashflow forecast", () => {
   });
 
   test("shows clear labels for sourced vs missing data", async ({ page }) => {
-    await page.goto("/auth/sign-in");
-    await page.fill('input[type="email"]', process.env.STRATA_ADMIN_EMAIL ?? "strata.fixture.admin@example.invalid");
-    await page.fill('input[type="password"]', process.env.STRATA_ADMIN_PASSWORD ?? "LocalFixtureAdmin123!");
-    await page.click('button[type="submit"]');
+    await gotoApp(page);
     
-    await page.waitForURL("/");
-    await page.click('a[href*="budget"]');
+    // Wait for authenticated session
+    await expect(page.getByText("Supabase RLS-backed session data").first()).toBeVisible({
+      timeout: 30_000,
+    });
+    
+    // Navigate to Budget page
+    await openNav(page, "budget");
     await page.waitForURL(/.*budget.*/);
 
     // Look for sourced badges on fund balances (20 Mar 2026 AGM Papers)
