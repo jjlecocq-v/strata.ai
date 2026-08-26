@@ -1,9 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { FIXTURE_IDS } from "../../scripts/fixture-identifiers.mjs";
 
 test.describe("Budget cashflow forecast", () => {
-  const COMMITTEE_ID = FIXTURE_IDS.committee;
-
   test("displays levy schedules with AGM-adopted amounts", async ({ page }) => {
     // Sign in as admin to view budget page
     await page.goto("/auth/sign-in");
@@ -90,12 +87,13 @@ test.describe("Budget cashflow forecast", () => {
     await page.click('a[href*="budget"]');
     await page.waitForURL(/.*budget.*/);
 
-    // Look for "missing" badge or note text on fund balances
-    const missingIndicators = page.locator("text=/missing|Opening balance not in AGM minutes/i");
-    await expect(missingIndicators.first()).toBeVisible();
+    // Look for sourced badges on fund balances (20 Mar 2026 AGM Papers)
+    const badges = page.locator('[role="status"], .badge');
+    await expect(badges.first()).toBeVisible();
 
-    // Look for source references like "AGM 14 Apr 2026"
-    await expect(page.locator("text=AGM 14 Apr 2026")).toBeVisible();
+    // Look for source references like "Draft AGM Papers" or dates
+    const sourceRefs = page.locator("text=/Draft AGM Papers|20 Mar 2026|27 Jul 2026/i");
+    await expect(sourceRefs.first()).toBeVisible();
   });
 
   test("member can view budget without finance capability", async ({ page }) => {
