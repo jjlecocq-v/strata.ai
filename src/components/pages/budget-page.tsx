@@ -15,12 +15,6 @@ const currency = new Intl.NumberFormat("en-AU", {
   maximumFractionDigits: 0,
 })
 
-const dateFormat = new Intl.DateTimeFormat("en-AU", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-})
-
 export function BudgetPage() {
   const { rawBudgetLines, rawBudgetRecommendation, rawVendors, rawLevySchedules, rawFundBalances, rawCashflowForecast } =
     useAppStore()
@@ -35,18 +29,6 @@ export function BudgetPage() {
       return acc
     },
     {} as Record<string, typeof rawFundBalances>,
-  )
-
-  // Group levy schedules by account
-  const levySchedulesByAccount = rawLevySchedules.reduce(
-    (acc, levy) => {
-      if (!acc[levy.accountName]) {
-        acc[levy.accountName] = []
-      }
-      acc[levy.accountName].push(levy)
-      return acc
-    },
-    {} as Record<string, typeof rawLevySchedules>,
   )
 
   // Group cashflow forecast by account

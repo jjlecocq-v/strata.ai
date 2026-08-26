@@ -274,7 +274,9 @@ type MemberQueryRow = {
 type ExpenseQueryRow = {
   id: string;
   budget_line_id: string | null;
+  account_id: string | null;
   amount: number;
+  spent_on: string | null;
 };
 
 type MilestoneQueryRow = {
@@ -1128,7 +1130,7 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
       .select("id,budget_line_id,name,approved_amount,committed_amount,invoiced_amount")
       .eq("committee_id", member.committee_id)
       .limit(40),
-    supabase.from("expenses").select("id,budget_line_id,amount").eq("committee_id", member.committee_id).limit(80),
+    supabase.from("expenses").select("id,budget_line_id,account_id,amount,spent_on").eq("committee_id", member.committee_id).limit(80),
     supabase
       .from("project_milestones")
       .select("id,project_id,label,planned_on,actual_on,status")
