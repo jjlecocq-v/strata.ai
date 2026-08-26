@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { FileText, Search, Upload } from "lucide-react"
+import { FileText, Search, Upload, Download } from "lucide-react"
 
 import { formatDate } from "@/lib/format"
 import { authHeaders } from "@/lib/supabase/auth-headers"
@@ -85,6 +85,31 @@ export function DocumentsPage() {
     }
   }
 
+  async function openDocument(documentId: string, name: string) {
+    setStatus({ state: "loading", message: `Opening ${name}...` })
+
+    try {
+      const response = await fetch("/api/documents/open", {
+        method: "POST",
+        headers: await authHeaders(),
+        body: JSON.stringify({ documentId }),
+      })
+      const body = (await response.json()) as { url?: string; error?: string }
+
+      if (!response.ok || !body.url) {
+        throw new Error(body.error ?? "Document could not be opened")
+      }
+
+      window.open(body.url, "_blank", "noopener,noreferrer")
+      setStatus({ state: "success", message: `Opened ${name}` })
+    } catch (error) {
+      setStatus({
+        state: "error",
+        message: error instanceof Error ? error.message : "Document open failed",
+      })
+    }
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -125,6 +150,19 @@ export function DocumentsPage() {
                 </div>
               </div>
               <div className="px-4 pb-3">
+                {document.status !== "Needs extraction" && (
+                  <div className="mb-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openDocument(document.id, document.name)}
+                      disabled={pending}
+                    >
+                      <Download data-icon="inline-start" />
+                      Open
+                    </Button>
+                  </div>
+                )}
                 <details className="mb-3 rounded-lg border border-border px-3 py-2">
                   <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium md:min-h-0">Document details</summary>
                   <div className="mt-3 flex flex-col gap-3 text-sm">

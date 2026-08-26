@@ -956,6 +956,11 @@ function generateCashflowForecast(
     const pastLevyTotal = pastLevies.reduce((sum, levy) => sum + levy.amount, 0);
     const hasPastLevies = pastLevies.length > 0;
 
+    // Add past levies to opening balance (as received or overdue)
+    if (hasPastLevies) {
+      runningBalance += pastLevyTotal;
+    }
+
     for (const forecastMonth of forecastMonths) {
       const monthKey = formatMonthKey(forecastMonth);
       const isFirstMonth = forecastMonth.getTime() === forecastMonths[0].getTime();
