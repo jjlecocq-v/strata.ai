@@ -862,6 +862,7 @@ function mapLevySchedules(
 function mapFundBalances(
   rows: FundBalanceQueryRow[],
   accounts: AccountQueryRow[],
+  levySchedules: LevyScheduleQueryRow[],
 ): FundBalance[] {
   const balanceTypeMap: Record<string, FundBalance["balanceType"]> = {
     opening: "Opening",
@@ -869,15 +870,55 @@ function mapFundBalances(
     projected: "Projected",
   };
 
-  return rows.map((row) => ({
-    id: row.id,
-    accountName: accounts.find((a) => a.id === row.account_id)?.name ?? "Unassigned account",
-    balanceAsOf: formatDate(row.balance_as_of),
-    balanceAmount: row.balance_amount,
-    balanceType: balanceTypeMap[row.balance_type] ?? "Current",
-    source: row.source,
-    notes: row.notes,
-  }));
+  const today = new Date();
+
+  // Group past levies by account
+  const pastLeviesByAccount = new Map<string, { count: number; total: number }>();
+  for (const levy of levySchedules) {
+    const levyDate = new Date(levy.due_on);
+    if (levyDate >= today) continue; // Only past levies
+
+    const accountId = levy.account_id;
+    if (!accountId) continue;
+
+    if (!pastLeviesByAccount.has(accountId)) {
+      pastLeviesByAccount.set(accountId, { count: 0, total: 0 });
+    }
+    const entry = pastLeviesByAccount.get(accountId)!;
+    entry.count += 1;
+    entry.total += levy.amount;
+  }
+
+  return rows.map((row) => {
+    const accountName = accounts.find((a) => a.id === row.account_id)?.name ?? "Unassigned account";
+    let balanceAmount = row.balance_amount;
+    let notes = row.notes;
+
+    // Add past levies to current balance if this is a current/opening balance
+    if (row.account_id && (row.balance_type === "current" || row.balance_type === "opening")) {
+      const pastLevies = pastLeviesByAccount.get(row.account_id);
+      if (pastLevies && pastLevies.total > 0) {
+        balanceAmount += pastLevies.total;
+        const formatter = new Intl.NumberFormat("en-AU", {
+          style: "currency",
+          currency: "AUD",
+          maximumFractionDigits: 0,
+        });
+        const pastLevyNote = `Includes ${pastLevies.count} past levy schedule(s) totaling ${formatter.format(pastLevies.total)} due before ${formatDate(today.toISOString())}`;
+        notes = notes ? `${notes} ${pastLevyNote}` : pastLevyNote;
+      }
+    }
+
+    return {
+      id: row.id,
+      accountName,
+      balanceAsOf: formatDate(row.balance_as_of),
+      balanceAmount,
+      balanceType: balanceTypeMap[row.balance_type] ?? "Current",
+      source: row.source,
+      notes,
+    };
+  });
 }
 
 function generateCashflowForecast(
@@ -1319,7 +1360,7 @@ export async function getStrataAppData(accessToken?: string): Promise<StrataAppD
     disclaimer: "General information only. Not legal, financial, accounting, engineering, or strata management advice.",
   };
   const levySchedules = mapLevySchedules(supabaseLevySchedules, supabaseAccounts);
-  const fundBalances = mapFundBalances(supabaseFundBalances, supabaseAccounts);
+  const fundBalances = mapFundBalances(supabaseFundBalances, supabaseAccounts, supabaseLevySchedules);
   const cashflowForecast = generateCashflowForecast(
     supabaseLevySchedules,
     supabaseFundBalances,
