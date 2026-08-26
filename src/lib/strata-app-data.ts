@@ -900,18 +900,42 @@ function generateCashflowForecast(
   // Get opening balances by account
   const openingBalances = new Map<string, number>();
   for (const balance of fundBalances.filter((b) => b.balanceType === "Opening" || b.balanceType === "Current")) {
+    // If account_id is null, this is total unsplit balance
+    if (balance.accountName === "Unassigned account") {
+      // Skip unallocated balances in per-account forecast
+      continue;
+    }
     openingBalances.set(balance.accountName, balance.balanceAmount);
+  }
+
+  // Group expenses by account
+  const expensesByAccount = new Map<string, ExpenseQueryRow[]>();
+  for (const expense of expenses) {
+    const accountId = expense.account_id;
+    if (!accountId) continue;
+    const account = accounts.find((a) => a.id === accountId);
+    if (!account) continue;
+    if (!expensesByAccount.has(account.name)) {
+      expensesByAccount.set(account.name, []);
+    }
+    expensesByAccount.get(account.name)!.push(expense);
   }
 
   // Generate forecast per account
   for (const account of accounts) {
     const accountLevies = leviesByAccount.get(account.name) ?? [];
+    const accountExpenses = expensesByAccount.get(account.name) ?? [];
     let runningBalance = openingBalances.get(account.name) ?? 0;
-    const dataQuality = openingBalances.has(account.name) && openingBalances.get(account.name)! > 0 
-      ? "sourced" 
-      : openingBalances.has(account.name) && fundBalances.find((b) => b.accountName === account.name && b.source === "missing")
+    
+    // Determine data quality from fund balances
+    const balanceRecord = fundBalances.find((b) => b.accountName === account.name);
+    const dataQuality = balanceRecord 
+      ? balanceRecord.source === "missing" 
         ? "missing"
-        : "assumed";
+        : balanceRecord.source === "assumed"
+          ? "assumed"
+          : "sourced"
+      : "assumed";
 
     for (const forecastMonth of forecastMonths) {
       const monthKey = formatMonthKey(forecastMonth);
@@ -925,8 +949,14 @@ function generateCashflowForecast(
         })
         .reduce((sum, levy) => sum + levy.amount, 0);
 
-      // Known outflows: simplified for now (would need expense dates in real implementation)
-      const knownOutflows = 0;
+      // Sum expenses in this month
+      const knownOutflows = accountExpenses
+        .filter((expense) => {
+          const expenseDate = new Date(expense.spent_on);
+          return expenseDate.getFullYear() === forecastMonth.getFullYear() &&
+                 expenseDate.getMonth() === forecastMonth.getMonth();
+        })
+        .reduce((sum, expense) => sum + expense.amount, 0);
 
       const projectedBalance = runningBalance + levyInflows - knownOutflows;
 

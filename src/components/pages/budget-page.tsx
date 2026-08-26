@@ -110,6 +110,43 @@ export function BudgetPage() {
             Financial position
           </h2>
         </div>
+
+        {/* Total unsplit balance (if available) */}
+        {rawFundBalances.some((b) => b.accountName === "Unassigned account") && (
+          <Card className="mb-4">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Total scheme funds (unsplit)</CardTitle>
+                  <CardDescription>
+                    {rawFundBalances.find((b) => b.accountName === "Unassigned account")?.balanceAsOf ?? "No date"}
+                  </CardDescription>
+                </div>
+                <Badge variant="default">sourced</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2">
+                <div>
+                  <p className="text-2xl font-bold tabular-nums">
+                    {currency.format(
+                      rawFundBalances.find((b) => b.accountName === "Unassigned account")?.balanceAmount ?? 0,
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {rawFundBalances.find((b) => b.accountName === "Unassigned account")?.source ?? ""}
+                  </p>
+                </div>
+                {rawFundBalances.find((b) => b.accountName === "Unassigned account")?.notes && (
+                  <p className="text-xs italic text-muted-foreground">
+                    {rawFundBalances.find((b) => b.accountName === "Unassigned account")?.notes}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {accounts.length ? (
           <div className="grid gap-4 lg:grid-cols-2">
             {accounts.map((accountName) => {
