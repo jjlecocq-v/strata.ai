@@ -954,6 +954,7 @@ function generateCashflowForecast(
       // Sum expenses in this month
       const knownOutflows = accountExpenses
         .filter((expense) => {
+          if (!expense.spent_on) return false;
           const expenseDate = new Date(expense.spent_on);
           return expenseDate.getFullYear() === forecastMonth.getFullYear() &&
                  expenseDate.getMonth() === forecastMonth.getMonth();
