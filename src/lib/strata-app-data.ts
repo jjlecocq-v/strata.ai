@@ -789,26 +789,7 @@ function mapBudgetLines(
     const actual = lineExpenses.reduce((sum, expense) => sum + expense.amount, 0);
     const account = accounts.find((item) => item.id === line.account_id)?.name ?? "Unassigned account";
     const totalSpend = Math.max(committed, actual);
-    const approved = line.approved_amount || 0;
-    
-    // Direct comparison: if actual spend exceeds approved, it's over budget
-    // This handles cases where actual > approved regardless of percentage calculations
-    let risk: string;
-    if (approved > 0) {
-      const ratio = Math.round((totalSpend / approved) * 100);
-      if (totalSpend > approved || ratio > 100) {
-        risk = "Over budget";
-      } else if (ratio > 95) {
-        risk = "Allowance pressure";
-      } else if (ratio > 75) {
-        risk = "Monitor committed spend";
-      } else {
-        risk = "Within current allowance";
-      }
-    } else {
-      // No approved amount set
-      risk = totalSpend > 0 ? "No allowance set" : "Within current allowance";
-    }
+    const ratio = line.approved_amount ? Math.round((totalSpend / line.approved_amount) * 100) : 0;
 
     return {
       sourceRefs: uniqueStrings([
@@ -819,10 +800,10 @@ function mapBudgetLines(
       ]),
       category: line.category,
       account,
-      approved,
+      approved: line.approved_amount,
       committed,
       actual,
-      risk,
+      risk: ratio > 100 ? "Over budget" : ratio > 95 ? "Allowance pressure" : ratio > 75 ? "Monitor committed spend" : "Within current allowance",
     };
   });
 }
