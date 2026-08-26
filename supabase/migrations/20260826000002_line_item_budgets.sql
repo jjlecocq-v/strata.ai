@@ -29,29 +29,29 @@ on conflict do nothing;
 
 insert into public.budget_lines (id, committee_id, budget_period_id, account_id, category, approved_amount)
 values
-  ('bbbbbbbb-line-admin-audit', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Accountant audit', 650.00),
-  ('bbbbbbbb-line-admin-cleaning', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Cleaning', 10000.00),
-  ('bbbbbbbb-line-admin-elecrepair', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Electrical repairs', 2000.00),
-  ('bbbbbbbb-line-admin-electricity', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Electricity', 3500.00),
-  ('bbbbbbbb-line-admin-fireprot', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Fire protection', 1000.00),
-  ('bbbbbbbb-line-admin-garage', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Garage door', 1000.00),
-  ('bbbbbbbb-line-admin-garden', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Garden', 4500.00),
-  ('bbbbbbbb-line-admin-genrepair', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'General repairs', 4000.00),
-  ('bbbbbbbb-line-admin-insurance', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Insurance premiums', 75000.00),
-  ('bbbbbbbb-line-admin-lift', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Lift', 7000.00),
-  ('bbbbbbbb-line-admin-lockkey', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Lock & key', 500.00),
-  ('bbbbbbbb-line-admin-stratahub', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'NSW Strata Hub annual', 150.00),
-  ('bbbbbbbb-line-admin-tax', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Tax management', 1800.00),
-  ('bbbbbbbb-line-admin-ocadditional', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC additional services', 14000.00),
-  ('bbbbbbbb-line-admin-ocdisbursements', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC disbursements', 1200.00),
-  ('bbbbbbbb-line-admin-ocmgmt', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC management fees', 5700.00),
-  ('bbbbbbbb-line-admin-ocworkorders', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC work orders', 1000.00),
-  ('bbbbbbbb-line-admin-plumbing', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Plumbing', 3000.00),
-  ('bbbbbbbb-line-admin-roofanchors', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Roof anchors', 650.00),
-  ('bbbbbbbb-line-admin-strahareg', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Strata Hub registration', 60.00),
-  ('bbbbbbbb-line-admin-liftreg', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Lift registration', 100.00),
-  ('bbbbbbbb-line-admin-waste', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Waste', 550.00),
-  ('bbbbbbbb-line-admin-water', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Water', 7000.00)
+  ('bbbbbbbb-line-admin-audit', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Accountant audit', 650.00),
+  ('bbbbbbbb-line-admin-cleaning', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Cleaning', 10000.00),
+  ('bbbbbbbb-line-admin-elecrepair', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Electrical repairs', 2000.00),
+  ('bbbbbbbb-line-admin-electricity', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Electricity', 3500.00),
+  ('bbbbbbbb-line-admin-fireprot', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Fire protection', 1000.00),
+  ('bbbbbbbb-line-admin-garage', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Garage door', 1000.00),
+  ('bbbbbbbb-line-admin-garden', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Garden', 4500.00),
+  ('bbbbbbbb-line-admin-genrepair', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'General repairs', 4000.00),
+  ('bbbbbbbb-line-admin-insurance', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Insurance premiums', 75000.00),
+  ('bbbbbbbb-line-admin-lift', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Lift', 7000.00),
+  ('bbbbbbbb-line-admin-lockkey', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Lock & key', 500.00),
+  ('bbbbbbbb-line-admin-stratahub', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'NSW Strata Hub annual', 150.00),
+  ('bbbbbbbb-line-admin-tax', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Tax management', 1800.00),
+  ('bbbbbbbb-line-admin-ocadditional', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC additional services', 14000.00),
+  ('bbbbbbbb-line-admin-ocdisbursements', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC disbursements', 1200.00),
+  ('bbbbbbbb-line-admin-ocmgmt', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC management fees', 5700.00),
+  ('bbbbbbbb-line-admin-ocworkorders', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'OC work orders', 1000.00),
+  ('bbbbbbbb-line-admin-plumbing', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Plumbing', 3000.00),
+  ('bbbbbbbb-line-admin-roofanchors', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Roof anchors', 650.00),
+  ('bbbbbbbb-line-admin-strahareg', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Strata Hub registration', 60.00),
+  ('bbbbbbbb-line-admin-liftreg', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Lift registration', 100.00),
+  ('bbbbbbbb-line-admin-waste', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Waste', 550.00),
+  ('bbbbbbbb-line-admin-water', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Water', 7000.00)
 on conflict (id) do update set approved_amount = excluded.approved_amount, category = excluded.category;
 
 -- Admin revenue lines (interest revenue $2,000).
@@ -65,8 +65,8 @@ comment on table public.budget_lines is 'Budget lines show approved expenditure.
 
 insert into public.budget_lines (id, committee_id, budget_period_id, account_id, category, approved_amount)
 values
-  ('bbbbbbbb-line-cwf-speciallevy', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Special Levy Expenses', 1660000.00),
-  ('bbbbbbbb-line-cwf-stairsfloors', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Stairs/Floors/Balconies', 27000.00)
+  ('bbbbbbbb-line-cwf-speciallevy', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Special Levy Expenses', 1660000.00),
+  ('bbbbbbbb-line-cwf-stairsfloors', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Stairs/Floors/Balconies', 27000.00)
 on conflict (id) do update set approved_amount = excluded.approved_amount, category = excluded.category;
 
 -- F26 forecast PDF (one page) summary:

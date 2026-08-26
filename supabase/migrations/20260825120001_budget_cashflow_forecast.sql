@@ -137,7 +137,7 @@ on conflict (id) do nothing;
 
 -- Create budget period FY26-27 if it doesn't exist.
 insert into public.budget_periods (id, committee_id, name, starts_on, ends_on)
-values ('bbbbbbbb-bbbb-bbbb-bbbb-budget202627', '11111111-1111-1111-1111-111111111111', 'FY 2026-27', '2026-07-01', '2027-06-30')
+values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', '11111111-1111-1111-1111-111111111111', 'FY 2026-27', '2026-07-01', '2027-06-30')
 on conflict (id) do nothing;
 
 -- Admin fund levy schedule (AGM 14 Apr 2026):
@@ -147,12 +147,12 @@ on conflict (id) do nothing;
 -- Total FY26-27: $174,000.00 inc GST
 insert into public.levy_schedules (committee_id, budget_period_id, account_id, levy_type, purpose, amount, due_on, issued_on, source)
 values
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 37250.00, '2026-01-01', '2026-01-01', 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 45583.33, '2026-04-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 45583.33, '2026-07-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 45583.34, '2026-10-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Interim admin levy (continue quarterly)', 45583.34, '2027-01-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Interim admin levy (continue quarterly)', 45583.34, '2027-04-01', null, 'AGM 14 Apr 2026')
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 37250.00, '2026-01-01', '2026-01-01', 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 45583.33, '2026-04-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 45583.33, '2026-07-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Admin fund contributions FY26-27', 45583.34, '2026-10-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Interim admin levy (continue quarterly)', 45583.34, '2027-01-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', 'Interim admin levy (continue quarterly)', 45583.34, '2027-04-01', null, 'AGM 14 Apr 2026')
 on conflict do nothing;
 
 -- Capital works fund levy schedule (AGM 14 Apr 2026):
@@ -161,20 +161,20 @@ on conflict do nothing;
 -- Total FY26-27: $151,041.00 inc GST
 insert into public.levy_schedules (committee_id, budget_period_id, account_id, levy_type, purpose, amount, due_on, issued_on, source)
 values
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-01-01', '2026-01-01', 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-04-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-07-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-10-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Interim capital works levy (continue quarterly)', 37760.25, '2027-01-01', null, 'AGM 14 Apr 2026'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Interim capital works levy (continue quarterly)', 37760.25, '2027-04-01', null, 'AGM 14 Apr 2026')
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-01-01', '2026-01-01', 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-04-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-07-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Capital works fund contributions FY26-27', 37760.25, '2026-10-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Interim capital works levy (continue quarterly)', 37760.25, '2027-01-01', null, 'AGM 14 Apr 2026'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'capital', 'Interim capital works levy (continue quarterly)', 37760.25, '2027-04-01', null, 'AGM 14 Apr 2026')
 on conflict do nothing;
 
 -- Special levy for balcony/spalling (AGM 14 Apr 2026, s81(4)):
 -- $575,000.00 inc GST, two instalments due 15 May and 16 June 2026
 insert into public.levy_schedules (committee_id, budget_period_id, account_id, levy_type, purpose, amount, due_on, issued_on, source, notes)
 values
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'special', 'Balcony/spalling repair (s81(4))', 287500.00, '2026-05-15', null, 'AGM 14 Apr 2026', 'Special levy instalment 1 of 2'),
-  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-budget202627', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'special', 'Balcony/spalling repair (s81(4))', 287500.00, '2026-06-16', null, 'AGM 14 Apr 2026', 'Special levy instalment 2 of 2')
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'special', 'Balcony/spalling repair (s81(4))', 287500.00, '2026-05-15', null, 'AGM 14 Apr 2026', 'Special levy instalment 1 of 2'),
+  ('11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb27', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'special', 'Balcony/spalling repair (s81(4))', 287500.00, '2026-06-16', null, 'AGM 14 Apr 2026', 'Special levy instalment 2 of 2')
 on conflict do nothing;
 
 -- Opening fund balances: AGM minutes do not state opening balances. An email cited
