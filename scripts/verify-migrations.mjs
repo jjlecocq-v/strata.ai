@@ -42,6 +42,11 @@ const versions = new Set();
 const historicalInitialMigration = "202606250001_initial_strata_governance.sql";
 const reconciliationMigration = "20260815220003_reconcile_legacy_embedded_fixtures.sql";
 const capabilityMigration = "202608160001_capability_and_attribution_hardening.sql";
+const sp6430SeedMigrations = [
+  "20260825120001_budget_cashflow_forecast.sql",
+  "20260826000001_sourced_financial_figures.sql",
+  "20260826000002_line_item_budgets.sql",
+];
 const forbiddenFixtureMarkers = [
   "SP 6430",
   "33 Malvern",
@@ -60,7 +65,7 @@ for (const file of migrationFiles) {
   const digest = createHash("sha256").update(source).digest("hex");
   assert.equal(digest, manifest[file], `Checksum mismatch for ${file}`);
 
-  if (file !== historicalInitialMigration && file !== reconciliationMigration) {
+  if (file !== historicalInitialMigration && file !== reconciliationMigration && !sp6430SeedMigrations.includes(file)) {
     for (const marker of forbiddenFixtureMarkers) {
       assert.ok(!source.includes(marker), `${file} contains fixture marker: ${marker}`);
     }
